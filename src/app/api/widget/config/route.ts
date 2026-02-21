@@ -26,9 +26,18 @@ export async function GET(req: Request) {
     widget_size: 'normal'
   };
 
+  let customization: any = {};
+  try {
+    const raw = website.settings?.custom_css as any;
+    customization = raw ? JSON.parse(raw) : {};
+  } catch {}
+
   return NextResponse.json({
     websiteId: website.id,
     websiteName: website.name,
-    ...settings
+    ...settings,
+    iconUrl: customization.iconUrl || '',
+    offsetX: typeof customization.offsetX === 'number' ? customization.offsetX : 20,
+    offsetY: typeof customization.offsetY === 'number' ? customization.offsetY : 50
   });
 }

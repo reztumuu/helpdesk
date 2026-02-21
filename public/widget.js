@@ -49,11 +49,14 @@
       }
       if (event.data && event.data.type === 'helpdesk-config') {
         const pos = event.data.position;
+        const ox = typeof event.data.offsetX === 'number' ? event.data.offsetX : 20;
+        const oy = typeof event.data.offsetY === 'number' ? event.data.offsetY : 50;
+        container.style.bottom = `${oy}px`;
         if (pos === 'bottom_left' || pos === 'bottom-left') {
-          container.style.left = '20px';
+          container.style.left = `${ox}px`;
           container.style.right = '';
         } else {
-          container.style.right = '20px';
+          container.style.right = `${ox}px`;
           container.style.left = '';
         }
       }

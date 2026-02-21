@@ -36,7 +36,7 @@ export default function WidgetPage() {
         if (res.ok) {
             const data = await res.json();
             setConfig(data);
-            window.parent.postMessage({ type: 'helpdesk-config', position: data.position }, '*');
+            window.parent.postMessage({ type: 'helpdesk-config', position: data.position, offsetX: data.offsetX, offsetY: data.offsetY }, '*');
             
             // Connect to socket
             const newSocket = io('http://localhost:3000');
@@ -343,7 +343,11 @@ export default function WidgetPage() {
             style={{ backgroundColor: config.primary_color || '#2563eb' }}
             aria-label="Open chat"
           >
-            <MessagesSquare size={28} className="text-white" />
+            {config.iconUrl ? (
+              <img src={config.iconUrl} alt="Widget Icon" className="w-7 h-7 object-cover rounded" />
+            ) : (
+              <MessagesSquare size={28} className="text-white" />
+            )}
             {unread > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                 {unread}

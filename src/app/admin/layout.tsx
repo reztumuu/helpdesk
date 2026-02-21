@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, Globe, MessageSquare, BarChart, LogOut, Users } from 'lucide-react';
+import { LayoutDashboard, Globe, MessageSquare, BarChart, LogOut, Users, Settings } from 'lucide-react';
 import UnreadBadge from '@/components/UnreadBadge';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -59,6 +59,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <BarChart className="w-5 h-5 mr-3" />
             Analytics
           </Link>
+          {user?.role === 'super_admin' && (
+            <Link href="/admin/settings" className={`flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 ${pathname === '/admin/settings' ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : ''}`}>
+              <Settings className="w-5 h-5 mr-3" />
+              Settings
+            </Link>
+          )}
           {user?.role === 'super_admin' && (
             <Link href="/admin/admins" className={`flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 ${pathname.startsWith('/admin/admins') ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : ''}`}>
               <Users className="w-5 h-5 mr-3" />
