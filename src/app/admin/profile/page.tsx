@@ -1,5 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
@@ -106,7 +109,7 @@ export default function ProfilePage() {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        <Card className="p-6">
           <h3 className="font-semibold mb-4">Foto Profil</h3>
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border">
@@ -134,49 +137,41 @@ export default function ProfilePage() {
               <span className="text-xs text-gray-500">{avatarFileName}</span>
             )}
           </div>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border md:col-span-2">
+        </Card>
+        <Card className="p-6 md:col-span-2">
           <h3 className="font-semibold mb-4">Informasi Akun</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-              <input
-                type="text"
+              <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="border rounded-lg px-3 py-2 w-full"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                type="email"
+              <Input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="border rounded-lg px-3 py-2 w-full"
+                type="email"
               />
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
-              <input
-                type="password"
+              <Input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Kosongkan jika tidak ingin mengganti"
-                className="border rounded-lg px-3 py-2 w-full"
+                type="password"
               />
             </div>
           </div>
           <div className="mt-6">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
+            <Button onClick={handleSave} disabled={saving}>
               {saving ? 'Saving...' : 'Save Profile'}
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

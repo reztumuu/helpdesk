@@ -1,6 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
+import Button from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 type WebsiteItem = { id: string; name: string; settings?: any };
 
@@ -141,23 +145,22 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border mb-6">
+      <Card className="p-6 mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
-        <select
+        <Select
           value={selectedId}
           onChange={(e) => handleSelectWebsite(e.target.value)}
-          className="border rounded px-3 py-2 w-full"
         >
           {websites.map((w) => (
             <option key={w.id} value={w.id}>
               {w.name}
             </option>
           ))}
-        </select>
-      </div>
+        </Select>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        <Card className="p-6">
           <h3 className="font-semibold mb-4">Icon</h3>
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border">
@@ -185,21 +188,21 @@ export default function SettingsPage() {
               <span className="text-xs text-gray-500">{iconFileName}</span>
             )}
             {iconUrl && (
-              <button
-                type="button"
+              <Button
                 onClick={async () => {
                   setIconUrl('');
                   await handleSave();
                 }}
-                className="text-sm px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                variant="danger"
+                size="sm"
               >
                 Hapus Icon
-              </button>
+              </Button>
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        <Card className="p-6">
           <h3 className="font-semibold mb-4">Position</h3>
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2">
@@ -226,27 +229,25 @@ export default function SettingsPage() {
           <div className="mt-4 grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Offset X (px)</label>
-              <input
-                type="number"
+              <Input
                 value={offsetX}
                 onChange={(e) => setOffsetX(parseInt(e.target.value || '0', 10))}
-                className="border rounded px-3 py-2 w-full"
+                type="number"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Offset Y (px)</label>
-              <input
-                type="number"
+              <Input
                 value={offsetY}
                 onChange={(e) => setOffsetY(parseInt(e.target.value || '0', 10))}
-                className="border rounded px-3 py-2 w-full"
+                type="number"
               />
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border mt-6">
+      <Card className="p-6 mt-6">
         <h3 className="font-semibold mb-4">Primary Color</h3>
         <input
           type="color"
@@ -254,16 +255,12 @@ export default function SettingsPage() {
           onChange={(e) => setPrimaryColor(e.target.value)}
           className="w-16 h-10 p-0 border rounded"
         />
-      </div>
+      </Card>
 
       <div className="mt-8">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
+        <Button onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save Settings'}
-        </button>
+        </Button>
       </div>
     </div>
   );

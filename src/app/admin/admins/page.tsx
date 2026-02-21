@@ -1,7 +1,12 @@
- 'use client';
- 
- import { useEffect, useState } from 'react';
- import { useRouter } from 'next/navigation';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
+import Button from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
  
  type UserItem = {
    id: string
@@ -87,19 +92,16 @@
               <h1 className="text-2xl sm:text-3xl font-bold">Admins</h1>
               <p className="mt-1 text-white/80 text-sm sm:text-base">Kelola pengguna admin dan agent.</p>
             </div>
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30"
-            >
+            <Button variant="outline" onClick={() => setShowModal(true)} className="bg-white/20 border-white/30 text-white hover:bg-white/30">
               Tambah Admin
-            </button>
+            </Button>
           </div>
         </div>
       </div>
  
       {error && <div className="mb-4 text-red-600">{error}</div>}
  
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+      <Card className="overflow-hidden">
          <table className="min-w-full divide-y divide-gray-200">
            <thead className="bg-gray-50">
              <tr>
@@ -126,9 +128,11 @@
                    <td className="px-6 py-4 whitespace-nowrap">{u.email}</td>
                    <td className="px-6 py-4 whitespace-nowrap capitalize">{u.role.replace('_', ' ')}</td>
                    <td className="px-6 py-4 whitespace-nowrap">
-                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${u.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                       {u.is_active ? 'Aktif' : 'Nonaktif'}
-                     </span>
+                    {u.is_active ? (
+                      <Badge variant="success">Aktif</Badge>
+                    ) : (
+                      <Badge variant="danger">Nonaktif</Badge>
+                    )}
                    </td>
                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500"></td>
                  </tr>
@@ -136,7 +140,7 @@
              )}
            </tbody>
          </table>
-       </div>
+      </Card>
  
        {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
@@ -145,61 +149,43 @@
              <form onSubmit={handleCreate}>
                <div className="mb-4">
                  <label className="block text-gray-700 mb-2">Nama</label>
-                 <input
-                   type="text"
+                <Input
                    value={newUser.name}
                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
                    required
                  />
                </div>
                <div className="mb-4">
                  <label className="block text-gray-700 mb-2">Email</label>
-                 <input
-                   type="email"
+                <Input
                    value={newUser.email}
                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
                    required
                  />
                </div>
                <div className="mb-4">
                  <label className="block text-gray-700 mb-2">Password</label>
-                 <input
-                   type="password"
+                <Input
                    value={newUser.password}
                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
                    minLength={6}
                    required
                  />
                </div>
                <div className="mb-6">
                  <label className="block text-gray-700 mb-2">Role</label>
-                 <select
+                <Select
                    value={newUser.role}
                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value as 'admin' | 'agent' | 'super_admin' })}
-                  className="w-full border rounded-lg px-3 py-2"
                  >
                    <option value="admin">Admin</option>
                    <option value="agent">Agent</option>
                    <option value="super_admin">Super Admin</option>
-                 </select>
+                </Select>
                </div>
                <div className="flex justify-end gap-2">
-                 <button
-                   type="button"
-                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                 >
-                   Batal
-                 </button>
-                 <button
-                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                 >
-                   Simpan
-                 </button>
+                <Button variant="outline" type="button" onClick={() => setShowModal(false)}>Batal</Button>
+                <Button type="submit">Simpan</Button>
                </div>
              </form>
            </div>
