@@ -1,0 +1,357 @@
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
+import { io, Socket } from 'socket.io-client';
+import { MessageCircle, X, Send, MessagesSquare } from 'lucide-react';
+
+export default function WidgetPage() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [config, setConfig] = useState<any>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [unread, setUnread] = useState(0);
+  const chatIdRef = useRef<string | null>(null);
+  const [isAdminTyping, setIsAdminTyping] = useState(false);
+  const [typingDots, setTypingDots] = useState('.');
+  const typingStopTimerRef = useRef<any>(null);
+  const typingDotsTimerRef = useRef<any>(null);
+
+  useEffect(() => {
+    // Get apiKey from URL
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get('apiKey');
+    if (key) {
+        setApiKey(key);
+        fetchConfig(key);
+    }
+  }, []);
+
+  const fetchConfig = async (key: string) => {
+      try {
+        const res = await fetch(`/api/widget/config?apiKey=${key}`);
+        if (res.ok) {
+            const data = await res.json();
+            setConfig(data);
+            window.parent.postMessage({ type: 'helpdesk-config', position: data.position }, '*');
+            
+            // Connect to socket
+            const newSocket = io('http://localhost:3000');
+            setSocket(newSocket);
+            
+            newSocket.emit('join-website', { apiKey: key });
+            newSocket.on('connect', () => {
+              newSocket.emit('join-website', { apiKey: key });
+              if (chatIdRef.current) {
+                newSocket.emit('join-chat', chatIdRef.current);
+              }
+            });
+            
+            // Track visitor session (create/update)
+            try {
+              const storageKey = `helpdesk_session_${key}`;
+              const saved = localStorage.getItem(storageKey);
+              const resTrack = await fetch('/api/visitors/track', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(saved ? { apiKey: key, sessionId: saved } : { apiKey: key })
+              });
+              if (resTrack.ok) {
+                const t = await resTrack.json();
+                localStorage.setItem(storageKey, t.sessionId);
+                newSocket.emit('visitor-online', { websiteId: t.websiteId, apiKey: key, chatId });
+                const savedChatId = localStorage.getItem(`helpdesk_chat_${key}`);
+                if (savedChatId) {
+                  setChatId(savedChatId);
+                  chatIdRef.current = savedChatId;
+                  newSocket.emit('join-chat', savedChatId);
+                  await loadMessages(savedChatId, t.sessionId);
+                }
+              }
+            } catch {}
+            
+            if (!chatId) {
+              const started = await startChat(key);
+              if (started) {
+                setChatId(started);
+                newSocket.emit('visitor-online', { websiteId: data.websiteId, apiKey: key, chatId: started });
+                newSocket.emit('chat-started', { websiteId: data.websiteId, apiKey: key, chatId: started });
+                try {
+                  const sid = localStorage.getItem(`helpdesk_session_${key}`);
+                  if (sid) await loadMessages(started, sid);
+                } catch {}
+              } else {
+                newSocket.emit('visitor-online', { websiteId: data.websiteId, apiKey: key });
+              }
+            }
+            
+            newSocket.on('new-message', (data: any) => {
+                // Check if message belongs to this chat or if we should start showing messages
+                if (chatIdRef.current && data.chatId === chatIdRef.current) {
+                    const incoming = {
+                      content: data.content,
+                      sender_type: data.sender === 'admin' ? 'admin' : 'visitor',
+                      created_at: data.createdAt || Date.now(),
+                      id: data.id
+                    };
+                    setMessages(prev => {
+                      if (incoming.id && prev.some((m: any) => m.id === incoming.id)) return prev;
+                      return [...prev, incoming];
+                    });
+                    scrollToBottom();
+                    setIsAdminTyping(false);
+                }
+                if (!isOpen) setUnread((u) => u + 1);
+            });
+            
+            newSocket.on('user-typing', (data: any) => {
+              if (chatIdRef.current && data.chatId === chatIdRef.current) {
+                setIsAdminTyping(true);
+                if (typingStopTimerRef.current) clearTimeout(typingStopTimerRef.current);
+                typingStopTimerRef.current = setTimeout(() => setIsAdminTyping(false), 3000);
+              }
+            });
+            
+            newSocket.on('user-stopped-typing', (data: any) => {
+              if (chatIdRef.current && data.chatId === chatIdRef.current) {
+                setIsAdminTyping(false);
+              }
+            });
+        }
+      } catch (err) {
+          console.error("Failed to load widget config", err);
+      }
+  };
+
+  useEffect(() => {
+      const width = isOpen ? '380px' : '60px';
+      const height = isOpen ? '520px' : '60px';
+      
+      window.parent.postMessage({
+          type: 'helpdesk-resize',
+          width,
+          height,
+          isOpen
+      }, '*');
+      if (isOpen) setUnread(0);
+  }, [isOpen]);
+
+  const toggleOpen = () => {
+      setIsOpen(!isOpen);
+  };
+  
+  const startChat = async (keyOverride?: string) => {
+       try {
+           // Include sessionId to reuse existing chat
+           let sid: string | null = null;
+           try {
+             const storageKey = `helpdesk_session_${keyOverride ?? apiKey}`;
+             sid = localStorage.getItem(storageKey);
+           } catch {}
+           const res = await fetch('/api/chats/start', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ apiKey: keyOverride ?? apiKey, sessionId: sid || undefined })
+           });
+           if (res.ok) {
+               const chat = await res.json();
+               setChatId(chat.id);
+               try {
+                 localStorage.setItem(`helpdesk_chat_${keyOverride ?? apiKey}`, chat.id);
+               } catch {}
+               return chat.id;
+           }
+       } catch (err) {
+           console.error("Failed to start chat", err);
+       }
+       return null;
+  };
+
+  const handleSend = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newMessage.trim() || !config) return;
+
+      let currentChatId = chatId;
+      
+      if (!currentChatId) {
+          currentChatId = await startChat();
+          if (!currentChatId) return;
+          if (socket) socket.emit('join-chat', currentChatId);
+      }
+      
+      try {
+          const res = await fetch('/api/messages', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  chatId: currentChatId,
+                  content: newMessage,
+                  sender: 'visitor',
+                  type: 'text'
+              })
+          });
+
+          if (res.ok) {
+              const msg = await res.json();
+              setNewMessage('');
+              scrollToBottom();
+              if (socket && chatIdRef.current) {
+                socket.emit('typing-stop', { chatId: chatIdRef.current });
+              }
+          }
+      } catch (err) {
+          console.error("Failed to send message", err);
+      }
+  };
+  
+  const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  
+  const loadMessages = async (cid: string, sid: string) => {
+    try {
+      const res = await fetch(`/api/messages/visitor?chatId=${cid}&sessionId=${sid}`);
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(data);
+        scrollToBottom();
+      }
+    } catch (e) {
+      console.error('Failed to load messages history', e);
+    }
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    if (socket && chatIdRef.current) {
+      if (e.target.value.trim().length > 0) {
+        socket.emit('typing-start', { chatId: chatIdRef.current });
+      } else {
+        socket.emit('typing-stop', { chatId: chatIdRef.current });
+      }
+      if (typingStopTimerRef.current) clearTimeout(typingStopTimerRef.current);
+      typingStopTimerRef.current = setTimeout(() => {
+        socket.emit('typing-stop', { chatId: chatIdRef.current! });
+      }, 1500);
+    }
+  };
+  
+  useEffect(() => {
+    chatIdRef.current = chatId;
+    if (socket && chatId) {
+      socket.emit('join-chat', chatId);
+    }
+  }, [chatId, socket]);
+  
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+  
+  useEffect(() => {
+    if (isAdminTyping) {
+      if (typingDotsTimerRef.current) clearInterval(typingDotsTimerRef.current);
+      typingDotsTimerRef.current = setInterval(() => {
+        setTypingDots(prev => (prev.length >= 3 ? '.' : prev + '.'));
+      }, 400);
+    } else {
+      if (typingDotsTimerRef.current) clearInterval(typingDotsTimerRef.current);
+      setTypingDots('.');
+    }
+    return () => {
+      if (typingDotsTimerRef.current) clearInterval(typingDotsTimerRef.current);
+    };
+  }, [isAdminTyping]);
+
+  if (!config) return null;
+
+  return (
+    <div className="h-screen w-full flex flex-col bg-transparent">
+      {isOpen ? (
+        <div className="flex-1 bg-white flex flex-col shadow-xl rounded-lg overflow-hidden border">
+          <div className="px-4 py-3 text-white flex justify-between items-center" style={{ backgroundColor: config.primary_color || '#2563eb' }}>
+            <div>
+              <h3 className="font-bold">Support</h3>
+              <p className="text-xs opacity-90">We typically reply in a few minutes</p>
+            </div>
+            <button onClick={toggleOpen} className="text-white hover:opacity-80">
+                <X size={20} />
+            </button>
+          </div>
+          
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 px-4 pt-2 pb-2">
+            {messages.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                <p>{config.welcome_message}</p>
+              </div>
+            ) : (
+              <>
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`mb-3 flex ${msg.sender_type === 'visitor' ? 'justify-end' : 'justify-start'}`}>
+                    <div
+                      className={`max-w-[80%] p-3 rounded-lg text-sm whitespace-pre-wrap break-words ${
+                        msg.sender_type === 'visitor'
+                          ? 'text-white rounded-br-none'
+                          : 'bg-white border text-gray-800 rounded-bl-none shadow-sm'
+                      }`}
+                      style={{
+                        ...(msg.sender_type === 'visitor' ? { backgroundColor: config.primary_color || '#2563eb' } : {}),
+                        wordBreak: 'break-word',
+                        overflowWrap: 'anywhere'
+                      }}
+                    >
+                      {msg.content}
+                    </div>
+                  </div>
+                ))}
+                {isAdminTyping && (
+                  <div className="mb-3 flex justify-start">
+                    <div className="max-w-[50%] px-3 py-2 rounded-lg bg-white border text-gray-600 text-sm">
+                      <span>Typing{typingDots}</span>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </div>
+          
+          <form onSubmit={handleSend} className="px-3 py-2 border-t bg-white flex items-center gap-2">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={handleInputChange}
+              placeholder="Send a message..."
+              className="flex-1 border rounded-full px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+            />
+            <button 
+                type="submit" 
+                className="h-9 w-9 rounded-full text-white hover:opacity-90 flex items-center justify-center"
+                style={{ backgroundColor: config.primary_color || '#2563eb' }}
+            >
+                <Send size={18} />
+            </button>
+          </form>
+        </div>
+      ) : (
+        <div className="flex justify-end items-end h-full">
+          <button
+            onClick={toggleOpen}
+            className="w-[60px] h-[60px] rounded-full text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform relative"
+            style={{ backgroundColor: config.primary_color || '#2563eb' }}
+            aria-label="Open chat"
+          >
+            <MessagesSquare size={28} className="text-white" />
+            {unread > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                {unread}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
