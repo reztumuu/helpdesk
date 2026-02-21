@@ -132,10 +132,15 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Widget Settings</h1>
       {error && <div className="mb-4 text-red-600">{error}</div>}
+      <div className="mb-6 rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white">
+        <div className="px-6 py-6 sm:px-8">
+          <h1 className="text-2xl sm:text-3xl font-bold">Widget Settings</h1>
+          <p className="mt-1 text-white/80 text-sm sm:text-base">Atur ikon, posisi, offset, dan warna widget.</p>
+        </div>
+      </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+      <div className="bg-white p-6 rounded-xl shadow-sm border mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
         <select
           value={selectedId}
@@ -151,7 +156,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 rounded-xl shadow-sm border">
           <h3 className="font-semibold mb-4">Icon</h3>
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border">
@@ -167,10 +172,22 @@ export default function SettingsPage() {
               onChange={(e) => e.target.files && e.target.files[0] && handleUpload(e.target.files[0])}
               className="text-sm"
             />
+            {iconUrl && (
+              <button
+                type="button"
+                onClick={async () => {
+                  setIconUrl('');
+                  await handleSave();
+                }}
+                className="text-sm px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+              >
+                Hapus Icon
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 rounded-xl shadow-sm border">
           <h3 className="font-semibold mb-4">Position</h3>
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2">
@@ -217,7 +234,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mt-6">
+      <div className="bg-white p-6 rounded-xl shadow-sm border mt-6">
         <h3 className="font-semibold mb-4">Primary Color</h3>
         <input
           type="color"
@@ -231,7 +248,7 @@ export default function SettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Save Settings'}
         </button>

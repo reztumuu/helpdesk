@@ -78,21 +78,28 @@
      }
    }
  
-   return (
-     <div>
-       <div className="flex justify-between items-center mb-8">
-         <h1 className="text-3xl font-bold">Admins</h1>
-         <button
-           onClick={() => setShowModal(true)}
-           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-         >
-           Tambah Admin
-         </button>
-       </div>
+  return (
+    <div>
+      <div className="mb-6 rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white">
+        <div className="px-6 py-6 sm:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">Admins</h1>
+              <p className="mt-1 text-white/80 text-sm sm:text-base">Kelola pengguna admin dan agent.</p>
+            </div>
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30"
+            >
+              Tambah Admin
+            </button>
+          </div>
+        </div>
+      </div>
  
-       {error && <div className="mb-4 text-red-600">{error}</div>}
+      {error && <div className="mb-4 text-red-600">{error}</div>}
  
-       <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
          <table className="min-w-full divide-y divide-gray-200">
            <thead className="bg-gray-50">
              <tr>
@@ -113,8 +120,8 @@
                  <td className="px-6 py-4" colSpan={5}>Belum ada admin</td>
                </tr>
              ) : (
-               users.map((u) => (
-                 <tr key={u.id}>
+              users.map((u) => (
+                <tr key={u.id} className="hover:bg-gray-50">
                    <td className="px-6 py-4 whitespace-nowrap">{u.name}</td>
                    <td className="px-6 py-4 whitespace-nowrap">{u.email}</td>
                    <td className="px-6 py-4 whitespace-nowrap capitalize">{u.role.replace('_', ' ')}</td>
@@ -132,8 +139,8 @@
        </div>
  
        {showModal && (
-         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-           <div className="bg-white p-8 rounded-lg w-[28rem]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white p-6 sm:p-8 rounded-xl w-full max-w-lg shadow-lg">
              <h2 className="text-xl font-bold mb-4">Tambah Admin Baru</h2>
              <form onSubmit={handleCreate}>
                <div className="mb-4">
@@ -142,7 +149,7 @@
                    type="text"
                    value={newUser.name}
                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                   className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded-lg px-3 py-2"
                    required
                  />
                </div>
@@ -152,7 +159,7 @@
                    type="email"
                    value={newUser.email}
                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                   className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded-lg px-3 py-2"
                    required
                  />
                </div>
@@ -162,7 +169,7 @@
                    type="password"
                    value={newUser.password}
                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                   className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded-lg px-3 py-2"
                    minLength={6}
                    required
                  />
@@ -172,7 +179,7 @@
                  <select
                    value={newUser.role}
                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value as 'admin' | 'agent' | 'super_admin' })}
-                   className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded-lg px-3 py-2"
                  >
                    <option value="admin">Admin</option>
                    <option value="agent">Agent</option>
@@ -183,13 +190,13 @@
                  <button
                    type="button"
                    onClick={() => setShowModal(false)}
-                   className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
                  >
                    Batal
                  </button>
                  <button
                    type="submit"
-                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                  >
                    Simpan
                  </button>

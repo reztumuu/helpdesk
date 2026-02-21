@@ -32,7 +32,14 @@ export async function PATCH(req: Request) {
       try {
         obj = JSON.parse(prev);
       } catch {}
-      obj.iconUrl = customization.iconUrl ?? obj.iconUrl;
+      if ('iconUrl' in customization) {
+        const val = customization.iconUrl as any;
+        if (val === '' || val === null) {
+          if ('iconUrl' in obj) delete obj.iconUrl;
+        } else {
+          obj.iconUrl = val;
+        }
+      }
       if (typeof customization.offsetX === 'number') obj.offsetX = customization.offsetX;
       if (typeof customization.offsetY === 'number') obj.offsetY = customization.offsetY;
       updates.custom_css = JSON.stringify(obj);

@@ -97,11 +97,15 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Profile</h1>
       {error && <div className="mb-4 text-red-600">{error}</div>}
-
+      <div className="mb-6 rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white">
+        <div className="px-6 py-6 sm:px-8">
+          <h1 className="text-2xl sm:text-3xl font-bold">Profile</h1>
+          <p className="mt-1 text-white/80 text-sm sm:text-base">Kelola informasi akun Anda.</p>
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 rounded-xl shadow-sm border">
           <h3 className="font-semibold mb-4">Foto Profil</h3>
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border">
@@ -119,7 +123,7 @@ export default function ProfilePage() {
             />
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md md:col-span-2">
+        <div className="bg-white p-6 rounded-xl shadow-sm border md:col-span-2">
           <h3 className="font-semibold mb-4">Informasi Akun</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -128,7 +132,7 @@ export default function ProfilePage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="border rounded px-3 py-2 w-full"
+                className="border rounded-lg px-3 py-2 w-full"
               />
             </div>
             <div>
@@ -137,7 +141,7 @@ export default function ProfilePage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="border rounded px-3 py-2 w-full"
+                className="border rounded-lg px-3 py-2 w-full"
               />
             </div>
             <div className="md:col-span-2">
@@ -147,7 +151,7 @@ export default function ProfilePage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Kosongkan jika tidak ingin mengganti"
-                className="border rounded px-3 py-2 w-full"
+                className="border rounded-lg px-3 py-2 w-full"
               />
             </div>
           </div>
@@ -155,7 +159,7 @@ export default function ProfilePage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
               {saving ? 'Saving...' : 'Save Profile'}
             </button>
