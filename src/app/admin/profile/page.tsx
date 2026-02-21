@@ -10,6 +10,7 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [avatarFileName, setAvatarFileName] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -115,12 +116,23 @@ export default function ProfilePage() {
                 <span className="text-gray-400 text-xs">No photo</span>
               )}
             </div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => e.target.files && e.target.files[0] && handleUpload(e.target.files[0])}
-              className="text-sm"
-            />
+            <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 cursor-pointer">
+              <span>Upload Photo</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setAvatarFileName(e.target.files[0].name);
+                    handleUpload(e.target.files[0]);
+                  }
+                }}
+              />
+            </label>
+            {avatarFileName && (
+              <span className="text-xs text-gray-500">{avatarFileName}</span>
+            )}
           </div>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border md:col-span-2">

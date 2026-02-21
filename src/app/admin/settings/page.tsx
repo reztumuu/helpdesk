@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const [offsetY, setOffsetY] = useState<number>(50);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [iconFileName, setIconFileName] = useState<string>('');
 
   useEffect(() => {
     try {
@@ -166,12 +167,23 @@ export default function SettingsPage() {
                 <span className="text-gray-400 text-xs">No icon</span>
               )}
             </div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => e.target.files && e.target.files[0] && handleUpload(e.target.files[0])}
-              className="text-sm"
-            />
+            <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 cursor-pointer">
+              <span>Upload Icon</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setIconFileName(e.target.files[0].name);
+                    handleUpload(e.target.files[0]);
+                  }
+                }}
+              />
+            </label>
+            {iconFileName && (
+              <span className="text-xs text-gray-500">{iconFileName}</span>
+            )}
             {iconUrl && (
               <button
                 type="button"

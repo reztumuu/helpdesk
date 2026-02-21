@@ -39,7 +39,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur border-b">
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               className="lg:hidden p-2 rounded-md hover:bg-gray-100"
