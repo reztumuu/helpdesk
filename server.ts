@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import next from "next";
 import { Server } from "socket.io";
-import { parse } from "url";
+// Use WHATWG URL API instead of deprecated url.parse
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -13,7 +13,7 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   const httpServer = createServer(async (req, res) => {
     try {
-      const parsedUrl = parse(req.url!, true);
+      const parsedUrl = new URL(req.url!, `http://${hostname}:${port}`);
       
       if (parsedUrl.pathname === '/_socket/emit' && req.method === 'POST') {
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -53,7 +53,7 @@ app.prepare().then(() => {
         return;
       }
       
-      await handle(req, res, parsedUrl);
+      await handle(req, res);
     } catch (err) {
       console.error("Error occurred handling", req.url, err);
       res.statusCode = 500;

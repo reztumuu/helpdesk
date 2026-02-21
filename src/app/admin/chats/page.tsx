@@ -3,6 +3,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import RealtimeAlarm from '@/components/RealtimeAlarm';
+import { Card } from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
 
 export default function ChatsPage() {
   const [chats, setChats] = useState<any[]>([]);
@@ -293,10 +297,10 @@ export default function ChatsPage() {
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 bg-white rounded-xl shadow-sm border overflow-hidden flex flex-col h-[70vh]">
+        <Card className="lg:col-span-1 overflow-hidden flex flex-col h-[70vh]">
           <div className="p-4 border-b bg-white flex items-center justify-between sticky top-0 z-10">
             <h2 className="font-semibold">Active Chats</h2>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600">Visitors: {visitorCount}</span>
+            <Badge variant="success" className="px-2 py-0.5">Visitors: {visitorCount}</Badge>
           </div>
           <div className="overflow-y-auto flex-1">
             {chats.map(chat => (
@@ -314,15 +318,15 @@ export default function ChatsPage() {
                   {chat.messages[0]?.content || 'No messages'}
                 </p>
                 {unread[chat.id] && unread[chat.id] > 0 && (
-                  <span className="absolute top-3 right-3 inline-flex items-center justify-center bg-red-600 text-white text-[10px] min-w-[18px] h-[18px] leading-[18px] px-1.5 rounded-full">
+                  <Badge variant="danger" className="absolute top-3 right-3 min-w-[18px] h-[18px] leading-[18px] text-[10px] px-1.5 flex items-center justify-center rounded-full">
                     {unread[chat.id]}
-                  </span>
+                  </Badge>
                 )}
               </button>
             ))}
           </div>
-        </div>
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border overflow-hidden flex flex-col h-[70vh]">
+        </Card>
+        <Card className="lg:col-span-2 overflow-hidden flex flex-col h-[70vh]">
           {activeChat ? (
             <>
               <div className="p-4 border-b bg-white flex justify-between items-center">
@@ -331,7 +335,7 @@ export default function ChatsPage() {
                   <span className="text-sm text-green-500">Online</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">realtime</span>
+                  <Badge className="px-2 py-0.5">realtime</Badge>
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 bg-gray-50">
@@ -359,19 +363,13 @@ export default function ChatsPage() {
                 <div ref={messagesEndRef} />
               </div>
               <form onSubmit={handleSendMessage} className="p-4 bg-white border-t flex gap-2">
-                <input
-                  type="text"
+                <Input
                   value={newMessage}
                   onChange={handleInputChange}
                   placeholder="Type a message..."
-                  className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:border-blue-500"
+                  className="flex-1 rounded-full"
                 />
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700"
-                >
-                  Send
-                </button>
+                <Button type="submit" className="rounded-full px-6">Send</Button>
               </form>
             </>
           ) : (
@@ -379,7 +377,7 @@ export default function ChatsPage() {
               Select a chat to start messaging
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

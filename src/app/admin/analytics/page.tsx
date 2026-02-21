@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import SimpleLineChart from '@/components/SimpleLineChart';
 import SimpleBarChart from '@/components/SimpleBarChart';
+import { Card } from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
 
 export default function AnalyticsPage() {
   const [visitors, setVisitors] = useState<number>(0);
@@ -71,37 +73,37 @@ export default function AnalyticsPage() {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-gray-500 text-sm font-medium">Total Visitors</h3>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600">realtime</span>
+            <Badge className="px-2 py-0.5" variant="success">realtime</Badge>
           </div>
           <p className="text-3xl font-bold mt-2">{visitors}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        </Card>
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-gray-500 text-sm font-medium">Active Chats</h3>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">realtime</span>
+            <Badge className="px-2 py-0.5">realtime</Badge>
           </div>
           <p className="text-3xl font-bold mt-2">{activeChats}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        </Card>
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-gray-500 text-sm font-medium">Conversations (30d)</h3>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">30 hari</span>
+            <Badge className="px-2 py-0.5">30 hari</Badge>
           </div>
           <p className="text-3xl font-bold mt-2">{totalConversations}</p>
-        </div>
+        </Card>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        <Card className="p-6">
           <h3 className="text-gray-700 font-medium mb-3">Visitor Trends (7 days)</h3>
           <SimpleLineChart labels={visitorLabels} data={visitorData} />
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        </Card>
+        <Card className="p-6">
           <h3 className="text-gray-700 font-medium mb-3">Avg Response Time (seconds)</h3>
           <SimpleBarChart labels={respLabels} data={respData} />
-        </div>
+        </Card>
       </div>
     </div>
   );

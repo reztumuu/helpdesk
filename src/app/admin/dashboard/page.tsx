@@ -3,6 +3,8 @@
 import RealtimeAlarm from '@/components/RealtimeAlarm';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import { Card } from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
 
 export default function DashboardPage() {
   const [visitors, setVisitors] = useState<number>(0);
@@ -74,34 +76,34 @@ export default function DashboardPage() {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-gray-500 text-sm font-medium">Total Visitors</h3>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600">realtime</span>
+            <Badge className="px-2 py-0.5" variant="success">realtime</Badge>
           </div>
           <p className="text-3xl font-bold mt-2">{visitors}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        </Card>
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-gray-500 text-sm font-medium">Active Chats</h3>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">realtime</span>
+            <Badge className="px-2 py-0.5">realtime</Badge>
           </div>
           <p className="text-3xl font-bold mt-2">{activeChats}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        </Card>
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-gray-500 text-sm font-medium">Total Conversations</h3>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">30 hari</span>
+            <Badge className="px-2 py-0.5">30 hari</Badge>
           </div>
           <p className="text-3xl font-bold mt-2">{totalConversations}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
+        </Card>
+        <Card className="p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-gray-500 text-sm font-medium">Avg Response Time</h3>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-600">realtime</span>
+            <Badge className="px-2 py-0.5">realtime</Badge>
           </div>
           <p className="text-3xl font-bold mt-2">2m 30s</p>
-        </div>
+        </Card>
       </div>
     </div>
   );
