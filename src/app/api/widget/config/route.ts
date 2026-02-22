@@ -19,7 +19,7 @@ export async function GET(req: Request) {
   }
 
   const settings = website.settings || {
-    primary_color: '#2563eb',
+    primary_color: '#f59e0b',
     position: 'bottom-right',
     welcome_message: 'Hello! How can we help you today?',
     offline_message: 'We are currently offline.',

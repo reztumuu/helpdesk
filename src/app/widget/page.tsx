@@ -363,7 +363,7 @@ export default function WidgetPage() {
           <button
             onClick={toggleOpen}
             className="w-[60px] h-[60px] rounded-full text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform relative"
-            style={{ backgroundColor: config.primary_color || '#2563eb' }}
+            style={{ backgroundColor: config.primary_color || '#f59e0b' }}
             aria-label="Open chat"
           >
             {config.iconUrl ? (

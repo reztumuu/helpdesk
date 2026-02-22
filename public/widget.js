@@ -75,12 +75,17 @@
     btn.style.border = 'none';
     btn.style.cursor = 'pointer';
     btn.style.borderRadius = '30px';
-    btn.style.backgroundColor = '#2563eb';
+    btn.style.backgroundColor = '#f59e0b';
     btn.style.color = '#fff';
     btn.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
-    btn.style.fontSize = '24px';
     btn.style.textDecoration = 'none';
-    btn.textContent = '💬';
+    const img = document.createElement('img');
+    img.src = baseUrl + '/messages-square.svg';
+    img.alt = 'Widget Icon';
+    img.style.width = '28px';
+    img.style.height = '28px';
+    img.style.pointerEvents = 'none';
+    btn.appendChild(img);
     container.appendChild(btn);
 
     btn.addEventListener('click', function() {
