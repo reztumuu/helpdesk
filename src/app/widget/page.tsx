@@ -143,8 +143,8 @@ export default function WidgetPage() {
   };
 
   useEffect(() => {
-      const width = isOpen ? '380px' : '60px';
-      const height = isOpen ? '520px' : '60px';
+      const width = isOpen ? '380px' : '64px';
+      const height = isOpen ? '520px' : '64px';
       
       window.parent.postMessage({
           type: 'helpdesk-resize',
@@ -391,7 +391,7 @@ export default function WidgetPage() {
               <MessagesSquare size={28} className="text-white" />
             )}
             {unread > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+              <span className="absolute top-2 right-2 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                 {unread}
               </span>
             )}

@@ -24,6 +24,8 @@
     iframe.style.height = '100%';
     iframe.style.border = 'none';
     iframe.style.borderRadius = '30px';
+    iframe.style.padding = '4px';
+    iframe.style.boxSizing = 'border-box';
     iframe.allow = "camera; microphone; autoplay; encrypted-media; fullscreen";
     container.appendChild(iframe);
 
