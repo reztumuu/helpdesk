@@ -53,6 +53,37 @@ export default function SettingsPage() {
       router.replace("/admin/dashboard");
       return;
     }
+    try {
+      const rawSites = localStorage.getItem("cache:websites:all");
+      if (rawSites) {
+        const cached = JSON.parse(rawSites) as { ts: number; data: any[] };
+        if (Date.now() - cached.ts < 60_000) {
+          const data = Array.isArray(cached.data) ? cached.data : [];
+          setWebsites(data as WebsiteItem[]);
+          if (data.length > 0) {
+            const w = data[0] as any;
+            setSelectedId(w.id);
+            const s = w.settings || {};
+            setPosition(s.position || "bottom_right");
+            setPrimaryColor(s.primary_color || "#2563eb");
+            try {
+              const custom = s.custom_css ? JSON.parse(s.custom_css) : {};
+              setIconUrl(custom.iconUrl || "");
+              setOffsetX(
+                typeof custom.offsetX === "number" ? custom.offsetX : 20,
+              );
+              setOffsetY(
+                typeof custom.offsetY === "number" ? custom.offsetY : 50,
+              );
+            } catch {
+              setIconUrl("");
+              setOffsetX(20);
+              setOffsetY(50);
+            }
+          }
+        }
+      }
+    } catch {}
     fetchWebsites();
   }, [router]);
 
@@ -65,6 +96,12 @@ export default function SettingsPage() {
       if (res.ok) {
         const data = await res.json();
         setWebsites(data);
+        try {
+          localStorage.setItem(
+            "cache:websites:all",
+            JSON.stringify({ ts: Date.now(), data }),
+          );
+        } catch {}
         if (data.length > 0) {
           const w = data[0];
           setSelectedId(w.id);

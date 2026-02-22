@@ -42,11 +42,33 @@ export default function AnalyticsPage() {
         setVisitorData(d.visitorsTrend?.counts ?? []);
         setRespLabels(d.responseTime?.labels ?? []);
         setRespData(d.responseTime?.seconds ?? []);
+        try {
+          localStorage.setItem(
+            "cache:analytics:summary",
+            JSON.stringify({ ts: Date.now(), data: d }),
+          );
+        } catch {}
       }
     } catch {}
   };
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("cache:analytics:summary");
+      if (raw) {
+        const cached = JSON.parse(raw) as { ts: number; data: any };
+        if (Date.now() - cached.ts < 60_000) {
+          const d = cached.data || {};
+          setVisitors(d.totals?.visitors ?? 0);
+          setActiveChats(d.totals?.activeChats ?? 0);
+          setTotalConversations(d.totals?.conversations30d ?? 0);
+          setVisitorLabels(d.visitorsTrend?.labels ?? []);
+          setVisitorData(d.visitorsTrend?.counts ?? []);
+          setRespLabels(d.responseTime?.labels ?? []);
+          setRespData(d.responseTime?.seconds ?? []);
+        }
+      }
+    } catch {}
     fetchCounts();
     const s = io("http://localhost:3000");
     const joinAll = async () => {

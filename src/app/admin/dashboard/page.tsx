@@ -21,12 +21,14 @@ export default function DashboardPage() {
   const fetchCounts = async () => {
     try {
       const token = localStorage.getItem("token");
+      let visitorsVal = 0;
       const vres = await fetch("/api/visitors?count=true", {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (vres.ok) {
         const vd = await vres.json();
-        setVisitors(vd.total ?? 0);
+        visitorsVal = vd.total ?? 0;
+        setVisitors(visitorsVal);
       }
       const cres = await fetch("/api/chats", {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -42,6 +44,17 @@ export default function DashboardPage() {
           (c: any) => new Date(c.created_at).getTime() >= cutoff,
         ).length;
         setTotalConversations(total30d);
+        try {
+          localStorage.setItem(
+            "cache:dashboard:counts",
+            JSON.stringify({
+              ts: Date.now(),
+              visitors: visitorsVal,
+              activeChats: active,
+              totalConversations: total30d,
+            }),
+          );
+        } catch {}
       }
     } catch {}
   };
@@ -66,6 +79,22 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("cache:dashboard:counts");
+      if (raw) {
+        const cached = JSON.parse(raw) as {
+          ts: number;
+          visitors: number;
+          activeChats: number;
+          totalConversations: number;
+        };
+        if (Date.now() - cached.ts < 60_000) {
+          setVisitors(cached.visitors || 0);
+          setActiveChats(cached.activeChats || 0);
+          setTotalConversations(cached.totalConversations || 0);
+        }
+      }
+    } catch {}
     fetchCounts();
     fetchLogs();
     const s = io("http://localhost:3000");

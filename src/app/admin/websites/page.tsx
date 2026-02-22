@@ -24,6 +24,15 @@ export default function WebsitesPage() {
   const [newWebsite, setNewWebsite] = useState({ name: "", domain: "" });
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("cache:websites:all");
+      if (raw) {
+        const cached = JSON.parse(raw) as { ts: number; data: any[] };
+        if (Date.now() - cached.ts < 60_000) {
+          setWebsites(Array.isArray(cached.data) ? cached.data : []);
+        }
+      }
+    } catch {}
     fetchWebsites();
   }, []);
 
@@ -33,7 +42,14 @@ export default function WebsitesPage() {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
-      setWebsites(await res.json());
+      const data = await res.json();
+      setWebsites(data);
+      try {
+        localStorage.setItem(
+          "cache:websites:all",
+          JSON.stringify({ ts: Date.now(), data }),
+        );
+      } catch {}
     }
   };
 

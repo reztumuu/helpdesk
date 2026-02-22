@@ -236,6 +236,15 @@ export default function ChatsPage() {
   }, [socket, activeChat]);
 
   const fetchChats = async () => {
+    try {
+      const raw = localStorage.getItem("cache:chats:active");
+      if (raw) {
+        const cached = JSON.parse(raw) as { ts: number; data: any[] };
+        if (Date.now() - cached.ts < 30_000) {
+          setChats(Array.isArray(cached.data) ? cached.data : []);
+        }
+      }
+    } catch {}
     const token = localStorage.getItem("token");
     const res = await fetch("/api/chats", {
       headers: { Authorization: `Bearer ${token}` },
@@ -243,6 +252,12 @@ export default function ChatsPage() {
     if (res.ok) {
       const data = await res.json();
       setChats(data);
+      try {
+        localStorage.setItem(
+          "cache:chats:active",
+          JSON.stringify({ ts: Date.now(), data }),
+        );
+      } catch {}
       try {
         const savedId = localStorage.getItem("activeChatId");
         if (savedId && !activeChat) {
@@ -258,6 +273,15 @@ export default function ChatsPage() {
   };
 
   const fetchVisitorCount = async () => {
+    try {
+      const raw = localStorage.getItem("cache:visitors:count-online");
+      if (raw) {
+        const cached = JSON.parse(raw) as { ts: number; total: number };
+        if (Date.now() - cached.ts < 30_000) {
+          setVisitorCount(cached.total || 0);
+        }
+      }
+    } catch {}
     const token = localStorage.getItem("token");
     const res = await fetch("/api/visitors?count=true&online=true", {
       headers: { Authorization: `Bearer ${token}` },
@@ -265,10 +289,25 @@ export default function ChatsPage() {
     if (res.ok) {
       const data = await res.json();
       setVisitorCount(data.total ?? 0);
+      try {
+        localStorage.setItem(
+          "cache:visitors:count-online",
+          JSON.stringify({ ts: Date.now(), total: data.total ?? 0 }),
+        );
+      } catch {}
     }
   };
   
   const fetchVisitorsOnline = async () => {
+    try {
+      const raw = localStorage.getItem("cache:visitors:list-online");
+      if (raw) {
+        const cached = JSON.parse(raw) as { ts: number; data: any[] };
+        if (Date.now() - cached.ts < 30_000) {
+          setVisitors(Array.isArray(cached.data) ? cached.data : []);
+        }
+      }
+    } catch {}
     const token = localStorage.getItem("token");
     const res = await fetch("/api/visitors?online=true&limit=100", {
       headers: { Authorization: `Bearer ${token}` },
@@ -276,6 +315,12 @@ export default function ChatsPage() {
     if (res.ok) {
       const data = await res.json();
       setVisitors(data || []);
+      try {
+        localStorage.setItem(
+          "cache:visitors:list-online",
+          JSON.stringify({ ts: Date.now(), data }),
+        );
+      } catch {}
     }
   };
 

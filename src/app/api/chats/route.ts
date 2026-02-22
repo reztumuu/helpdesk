@@ -16,7 +16,15 @@ export async function GET(req: Request) {
   const where: any = {};
 
   if (status) {
-    where.status = status;
+    if (status === 'open') {
+      where.status = { in: ['waiting', 'ongoing'] };
+    } else if (status.includes(',')) {
+      where.status = { in: status.split(',').map(s => s.trim()) };
+    } else {
+      where.status = status;
+    }
+  } else {
+    where.status = { in: ['waiting', 'ongoing'] };
   }
 
   if (websiteId) {

@@ -52,6 +52,15 @@ export default function AdminsPage() {
       router.replace("/admin/dashboard");
       return;
     }
+    try {
+      const raw = localStorage.getItem("cache:admins:list");
+      if (raw) {
+        const cached = JSON.parse(raw) as { ts: number; data: UserItem[] };
+        if (Date.now() - cached.ts < 60_000) {
+          setUsers(Array.isArray(cached.data) ? cached.data : []);
+        }
+      }
+    } catch {}
     fetchUsers();
   }, [router]);
 
@@ -63,8 +72,14 @@ export default function AdminsPage() {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
-      const data = await res.json();
+      const data = (await res.json()) as UserItem[];
       setUsers(data);
+      try {
+        localStorage.setItem(
+          "cache:admins:list",
+          JSON.stringify({ ts: Date.now(), data }),
+        );
+      } catch {}
     } else {
       setError("System Error: Failed to load operator data.");
     }

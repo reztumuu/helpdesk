@@ -50,6 +50,24 @@ export default function AdminLayout({
     }
   }, [router, pathname]);
 
+  useEffect(() => {
+    const base = [
+      "/admin/dashboard",
+      "/admin/websites",
+      "/admin/chats",
+      "/admin/analytics",
+      "/admin/profile",
+    ];
+    if (user?.role === "super_admin") {
+      base.push("/admin/settings", "/admin/admins");
+    }
+    base.forEach((p) => {
+      try {
+        router.prefetch(p);
+      } catch {}
+    });
+  }, [router, user]);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -196,6 +214,17 @@ export default function AdminLayout({
                 <Link
                   key={i}
                   href={item.href}
+                  prefetch
+                  onMouseEnter={() => {
+                    try {
+                      router.prefetch(item.href);
+                    } catch {}
+                  }}
+                  onFocus={() => {
+                    try {
+                      router.prefetch(item.href);
+                    } catch {}
+                  }}
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center px-4 py-3 border-2 border-foreground font-bold uppercase tracking-tight text-sm transition-all group ${
                     isActive

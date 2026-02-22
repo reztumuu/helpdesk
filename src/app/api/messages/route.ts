@@ -37,9 +37,14 @@ export async function POST(req: Request) {
   });
 
   // Update chat updated_at
+  const reopen =
+    sender !== 'admin' && (chat.status === 'closed' || chat.status === 'resolved');
   await prisma.chat.update({
       where: { id: chatId },
-      data: { updated_at: new Date() }
+      data: {
+        updated_at: new Date(),
+        ...(reopen ? { status: 'waiting', ended_at: null } : {})
+      }
   });
 
   try {
@@ -53,6 +58,20 @@ export async function POST(req: Request) {
       },
     });
   } catch {}
+
+  if (reopen) {
+    try {
+      await prisma.activityLog.create({
+        data: {
+          user_id: chat.website.user_id,
+          action: 'chat_started',
+          resource_type: 'chat',
+          resource_id: chatId,
+          metadata: { reopened: true },
+        },
+      });
+    } catch {}
+  }
 
   try {
     await fetch('http://localhost:3000/_socket/emit', {
@@ -74,6 +93,23 @@ export async function POST(req: Request) {
     });
   } catch (e) {
     // swallow: realtime is best-effort; DB is source of truth
+  }
+
+  if (reopen) {
+    try {
+      await fetch('http://localhost:3000/_socket/emit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'chat-started',
+          data: {
+            chatId,
+            websiteId: chat.website.id,
+            apiKey: (chat.website as any).api_key
+          }
+        })
+      });
+    } catch {}
   }
   
   return NextResponse.json(message);
