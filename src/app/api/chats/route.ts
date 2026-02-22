@@ -36,6 +36,7 @@ export async function GET(req: Request) {
       visitor_id: true,
       assigned_to: true,
       status: true,
+      ended_at: true,
       updated_at: true,
       assignee: {
         select: { id: true, name: true }

@@ -50,6 +50,16 @@ app.prepare().then(() => {
               if (chatId) {
                 io.to(`chat-${chatId}`).emit('chat-joined', data);
               }
+            } else if (event === 'chat-ended') {
+              const { websiteId, apiKey, chatId } = data;
+              if (apiKey) {
+                io.to(`website-${apiKey}`).emit('chat-ended', { websiteId, apiKey, chatId });
+              } else if (websiteId) {
+                io.to(`website-${websiteId}`).emit('chat-ended', { websiteId, chatId });
+              }
+              if (chatId) {
+                io.to(`chat-${chatId}`).emit('chat-ended', { chatId });
+              }
             }
             res.statusCode = 200;
             res.end(JSON.stringify({ ok: true }));

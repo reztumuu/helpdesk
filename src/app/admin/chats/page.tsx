@@ -34,8 +34,9 @@ export default function ChatsPage() {
   const typingStopTimerRef = useRef<any>(null);
   const typingDotsTimerRef = useRef<any>(null);
   const [me, setMe] = useState<any>(null);
-  const [tab, setTab] = useState<"chats" | "visitors">("chats");
+  const [tab, setTab] = useState<"chats" | "visitors" | "history">("chats");
   const [visitors, setVisitors] = useState<any[]>([]);
+  const [historyChats, setHistoryChats] = useState<any[]>([]);
 
   useEffect(() => {
     const newSocket = io("http://localhost:3000");
@@ -142,6 +143,17 @@ export default function ChatsPage() {
       }
     });
 
+    socket.on("chat-ended", (data: any) => {
+      const cid = data?.chatId;
+      if (!cid) return;
+      setChats((prev) => prev.filter((c) => c.id !== cid));
+      if (activeChat && cid === activeChat.id) {
+        setActiveChat(null);
+        setMessages([]);
+      }
+      fetchChatsHistory();
+    });
+
     socket.on("visitor-online", () => {
       fetchVisitorCount();
       fetchVisitorsOnline();
@@ -210,6 +222,7 @@ export default function ChatsPage() {
       socket.off("visitor-online");
       socket.off("chat-started");
       socket.off("chat-joined");
+      socket.off("chat-ended");
       socket.off("user-typing");
       socket.off("user-stopped-typing");
       socket.off("visitor-offline");
@@ -258,6 +271,30 @@ export default function ChatsPage() {
       const data = await res.json();
       setVisitors(data || []);
     }
+  };
+
+  const fetchChatsHistory = async () => {
+    const token = localStorage.getItem("token");
+    const resClosed = await fetch("/api/chats?status=closed", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const resResolved = await fetch("/api/chats?status=resolved", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    let list: any[] = [];
+    if (resClosed.ok) {
+      const d = await resClosed.json();
+      list = list.concat(Array.isArray(d) ? d : []);
+    }
+    if (resResolved.ok) {
+      const d = await resResolved.json();
+      list = list.concat(Array.isArray(d) ? d : []);
+    }
+    list.sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    );
+    setHistoryChats(list);
   };
 
   const handleSelectChat = (chat: any) => {
@@ -336,6 +373,40 @@ export default function ChatsPage() {
           ),
         );
         if (socket) socket.emit("join-chat", updated.id);
+      }
+    } catch {}
+  };
+
+  const handleEndChat = async (chat: any) => {
+    if (!chat) return;
+    try {
+      const confirmEnd = window.confirm("End this chat?");
+      if (!confirmEnd) return;
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/chats/end", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ chatId: chat.id }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setChats((prev) => prev.filter((c) => c.id !== chat.id));
+        setHistoryChats((prev) => {
+          const next = [updated, ...prev];
+          next.sort(
+            (a, b) =>
+              new Date(b.updated_at).getTime() -
+              new Date(a.updated_at).getTime(),
+          );
+          return next;
+        });
+        if (activeChat && chat.id === activeChat.id) {
+          setActiveChat(null);
+          setMessages([]);
+        }
       }
     } catch {}
   };
@@ -431,17 +502,12 @@ export default function ChatsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[350px_1fr] xl:grid-cols-[400px_1fr] gap-6 flex-1 min-h-0 relative z-10 pb-4">
         <div className="border-4 border-foreground bg-background shadow-[8px_8px_0_0_currentColor] flex flex-col h-full overflow-hidden">
-          <div className="border-b-4 border-foreground bg-foreground text-background p-4 flex justify-between items-center shrink-0">
-            <h2
-              className={`font-bold uppercase tracking-widest flex items-center gap-2 text-sm ${mono.className}`}
-            >
-              <History className="w-4 h-4" /> Message Logs
-            </h2>
-            <div className="flex items-center gap-2">
+          <div className="border-b-4 border-foreground bg-foreground text-background p-4 flex flex-col gap-3 items-start shrink-0">
+            <div className="flex items-center gap-3 w-full">
               <button
                 type="button"
                 onClick={() => setTab("chats")}
-                className={`px-3 py-1 border-2 border-background font-bold uppercase tracking-widest text-xs ${tab === "chats" ? "bg-background text-foreground" : "bg-foreground/20 text-background"}`}
+                className={`flex-1 text-center px-4 py-3 border-2 border-background font-bold uppercase tracking-widest text-sm ${tab === "chats" ? "bg-background text-foreground" : "bg-foreground/20 text-background"}`}
               >
                 Chats
               </button>
@@ -451,11 +517,26 @@ export default function ChatsPage() {
                   setTab("visitors");
                   fetchVisitorsOnline();
                 }}
-                className={`px-3 py-1 border-2 border-background font-bold uppercase tracking-widest text-xs ${tab === "visitors" ? "bg-background text-foreground" : "bg-foreground/20 text-background"}`}
+                className={`flex-1 text-center px-4 py-3 border-2 border-background font-bold uppercase tracking-widest text-sm ${tab === "visitors" ? "bg-background text-foreground" : "bg-foreground/20 text-background"}`}
               >
                 Visitors
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTab("history");
+                  fetchChatsHistory();
+                }}
+                className={`flex-1 text-center px-4 py-3 border-2 border-background font-bold uppercase tracking-widest text-sm ${tab === "history" ? "bg-background text-foreground" : "bg-foreground/20 text-background"}`}
+              >
+                History
+              </button>
             </div>
+            <h2
+              className={`font-bold uppercase tracking-widest flex items-center gap-2 text-sm ${mono.className}`}
+            >
+              <History className="w-4 h-4" /> Message Logs
+            </h2>
           </div>
 
           <div className="overflow-y-auto flex-1 bg-foreground/5">
@@ -481,6 +562,53 @@ export default function ChatsPage() {
                   </div>
                 ))
               )
+            ) : tab === "history" ? (
+              historyChats.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center p-8 text-center opacity-50">
+                  <TerminalSquare className="w-12 h-12 mb-4" />
+                  <p
+                    className={`text-sm uppercase font-bold tracking-widest ${mono.className}`}
+                  >
+                    No Ended Sessions
+                  </p>
+                </div>
+              ) : (
+                historyChats.map((chat) => (
+                  <div
+                    key={chat.id}
+                    className={`w-full text-left p-5 border-b-4 border-foreground transition-all flex flex-col gap-2 bg-background`}
+                  >
+                    <div className="flex justify-between items-center w-full">
+                      <span
+                        className={`font-bold uppercase tracking-widest text-sm flex items-center gap-2 ${mono.className}`}
+                      >
+                        <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        V_{chat.visitor_id.slice(0, 5)}
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold uppercase tracking-widest opacity-60 ${mono.className}`}
+                      >
+                        {new Date(chat.updated_at).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-end w-full gap-4 mt-2">
+                      <p
+                        className={`text-sm truncate font-medium opacity-70 ${mono.className}`}
+                      >
+                        {chat.messages?.[0]?.content || "---"}
+                      </p>
+                      <span
+                        className={`shrink-0 border-2 border-background bg-foreground/10 text-foreground font-bold h-6 min-w-[24px] px-2 flex items-center justify-center text-[10px] shadow-[2px_2px_0_0_currentColor] ${mono.className}`}
+                      >
+                        Ended
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )
             ) : chats.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center p-8 text-center opacity-50">
                 <TerminalSquare className="w-12 h-12 mb-4" />
@@ -496,6 +624,10 @@ export default function ChatsPage() {
                   type="button"
                   key={chat.id}
                   onClick={() => handleSelectChat(chat)}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    handleEndChat(chat);
+                  }}
                   className={`w-full text-left p-5 border-b-4 border-foreground transition-all flex flex-col gap-2 group outline-none focus-visible:bg-foreground focus-visible:text-background ${
                     activeChat?.id === chat.id
                       ? "bg-foreground text-background shadow-[inset_6px_0_0_0_#3b82f6] dark:shadow-[inset_6px_0_0_0_#60a5fa]"
