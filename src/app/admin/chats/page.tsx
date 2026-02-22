@@ -37,6 +37,10 @@ export default function ChatsPage() {
   const [tab, setTab] = useState<"chats" | "visitors" | "history">("chats");
   const [visitors, setVisitors] = useState<any[]>([]);
   const [historyChats, setHistoryChats] = useState<any[]>([]);
+  const [showEndCard, setShowEndCard] = useState(false);
+  const [endTarget, setEndTarget] = useState<any>(null);
+  const [endCardTop, setEndCardTop] = useState<number>(0);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const newSocket = io("http://localhost:3000");
@@ -152,6 +156,8 @@ export default function ChatsPage() {
         setMessages([]);
       }
       fetchChatsHistory();
+      setShowEndCard(false);
+      setEndTarget(null);
     });
 
     socket.on("visitor-online", () => {
@@ -377,11 +383,19 @@ export default function ChatsPage() {
     } catch {}
   };
 
+  const openEndCard = (chat: any) => {
+    setEndTarget(chat);
+    setShowEndCard(true);
+  };
+
+  const closeEndCard = () => {
+    setShowEndCard(false);
+    setEndTarget(null);
+  };
+
   const handleEndChat = async (chat: any) => {
     if (!chat) return;
     try {
-      const confirmEnd = window.confirm("End this chat?");
-      if (!confirmEnd) return;
       const token = localStorage.getItem("token");
       const res = await fetch("/api/chats/end", {
         method: "POST",
@@ -407,6 +421,7 @@ export default function ChatsPage() {
           setActiveChat(null);
           setMessages([]);
         }
+        closeEndCard();
       }
     } catch {}
   };
@@ -539,7 +554,7 @@ export default function ChatsPage() {
             </h2>
           </div>
 
-          <div className="overflow-y-auto flex-1 bg-foreground/5">
+          <div ref={listRef} className="overflow-y-auto flex-1 bg-foreground/5 relative">
             {tab === "visitors" ? (
               visitors.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center p-8 text-center opacity-50">
@@ -626,7 +641,14 @@ export default function ChatsPage() {
                   onClick={() => handleSelectChat(chat)}
                   onContextMenu={(e) => {
                     e.preventDefault();
-                    handleEndChat(chat);
+                    try {
+                      const itemRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                      const contRect = listRef.current?.getBoundingClientRect();
+                      const scrollTop = listRef.current?.scrollTop || 0;
+                      const top = (itemRect.top - (contRect?.top || 0)) + scrollTop + 4;
+                      setEndCardTop(top);
+                    } catch {}
+                    openEndCard(chat);
                   }}
                   className={`w-full text-left p-5 border-b-4 border-foreground transition-all flex flex-col gap-2 group outline-none focus-visible:bg-foreground focus-visible:text-background ${
                     activeChat?.id === chat.id
@@ -670,6 +692,44 @@ export default function ChatsPage() {
                   </div>
                 </button>
               ))
+            )}
+            {showEndCard && endTarget && (
+              <div className="absolute z-40" style={{ top: endCardTop, right: 10 }}>
+                <div className="border-4 border-foreground bg-background shadow-[8px_8px_0_0_currentColor] w-[320px] max-w-[90vw]">
+                  <div className="border-b-4 border-foreground bg-background p-3 flex items-center gap-2">
+                    <TerminalSquare className="w-4 h-4" />
+                    <span className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}>End Chat</span>
+                  </div>
+                  <div className="p-4">
+                    <div className="flex justify-between items-center">
+                      <span className={`font-bold uppercase tracking-widest text-sm flex items-center gap-2 ${mono.className}`}>
+                        <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        V_{endTarget.visitor_id.slice(0, 5)}
+                      </span>
+                      <span className={`text-[10px] font-bold uppercase tracking-widest opacity-60 ${mono.className}`}>
+                        {new Date(endTarget.updated_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <p className={`mt-3 text-sm opacity-80 ${mono.className}`}>Akhiri percakapan ini. Chat akan dipindahkan ke tab History.</p>
+                    <div className="mt-4 flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleEndChat(endTarget)}
+                        className={`flex-1 border-4 border-foreground bg-foreground text-background px-4 py-2 font-bold uppercase tracking-widest shadow-[4px_4px_0_0_currentColor] hover:-translate-y-1 hover:translate-x-1 hover:shadow-[6px_6px_0_0_currentColor] transition-all focus:outline-none focus:translate-y-1 focus:translate-x-1 focus:shadow-none ${mono.className}`}
+                      >
+                        End Chat
+                      </button>
+                      <button
+                        type="button"
+                        onClick={closeEndCard}
+                        className={`flex-1 border-4 border-foreground bg-background text-foreground px-4 py-2 font-bold uppercase tracking-widest shadow-[4px_4px_0_0_currentColor] hover:-translate-y-1 hover:translate-x-1 hover:shadow-[6px_6px_0_0_currentColor] transition-all focus:outline-none focus:translate-y-1 focus:translate-x-1 focus:shadow-none ${mono.className}`}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
