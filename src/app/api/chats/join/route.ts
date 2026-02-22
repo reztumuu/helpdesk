@@ -45,6 +45,18 @@ export async function POST(req: Request) {
     });
 
     try {
+      await prisma.activityLog.create({
+        data: {
+          user_id: session.id,
+          action: 'chat_joined',
+          resource_type: 'chat',
+          resource_id: chatId,
+          metadata: { assigneeId: session.id, assigneeName: updated.assignee?.name || 'Agent' },
+        },
+      });
+    } catch {}
+
+    try {
       await fetch('http://localhost:3000/_socket/emit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

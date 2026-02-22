@@ -64,6 +64,17 @@ export async function POST(req: Request) {
         },
       });
       try {
+        await prisma.activityLog.create({
+          data: {
+            user_id: website.user_id,
+            action: 'chat_started',
+            resource_type: 'chat',
+            resource_id: chat.id,
+            metadata: { visitorId: visitor.id },
+          },
+        });
+      } catch {}
+      try {
         await fetch('http://localhost:3000/_socket/emit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

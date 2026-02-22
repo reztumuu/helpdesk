@@ -16,6 +16,7 @@ export default function DashboardPage() {
   const [visitors, setVisitors] = useState<number>(0);
   const [activeChats, setActiveChats] = useState<number>(0);
   const [totalConversations, setTotalConversations] = useState<number>(0);
+  const [logs, setLogs] = useState<any[]>([]);
 
   const fetchCounts = async () => {
     try {
@@ -44,9 +45,29 @@ export default function DashboardPage() {
       }
     } catch {}
   };
+  const fetchLogs = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/logs?limit=25", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const sorted = Array.isArray(data)
+          ? data.sort(
+              (a: any, b: any) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime(),
+            )
+          : [];
+        setLogs(sorted);
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     fetchCounts();
+    fetchLogs();
     const s = io("http://localhost:3000");
     const joinAll = async () => {
       try {
@@ -68,9 +89,22 @@ export default function DashboardPage() {
       } catch {}
     };
     joinAll();
-    s.on("visitor-online", fetchCounts);
-    s.on("chat-started", fetchCounts);
-    s.on("new-message", fetchCounts);
+    s.on("visitor-online", () => {
+      fetchCounts();
+      fetchLogs();
+    });
+    s.on("chat-started", () => {
+      fetchCounts();
+      fetchLogs();
+    });
+    s.on("new-message", () => {
+      fetchCounts();
+      fetchLogs();
+    });
+    s.on("chat-joined", () => {
+      fetchCounts();
+      fetchLogs();
+    });
     return () => {
       s.disconnect();
     };
@@ -235,44 +269,55 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="flex-1 p-6 overflow-y-auto space-y-6">
-              {[
-                {
-                  text: "New visitor on Pricing Page",
-                  time: "2 mins ago",
-                  type: "info",
-                },
-                {
-                  text: "Chat #1204 resolved by Agent_01",
-                  time: "15 mins ago",
-                  type: "success",
-                },
-                {
-                  text: "High volume alert > 100 concurrent visiors",
-                  time: "1 hr ago",
-                  type: "warn",
-                },
-                {
-                  text: "System backup complete",
-                  time: "4 hrs ago",
-                  type: "info",
-                },
-              ].map((log, i) => (
-                <div
-                  key={i}
-                  className={`flex gap-4 items-start border-l-4 ${log.type === "warn" ? "border-orange-500" : log.type === "success" ? "border-green-500" : "border-blue-500"} pl-4`}
-                >
-                  <div className="flex flex-col">
-                    <span className="font-bold uppercase tracking-tight text-lg leading-tight">
-                      {log.text}
-                    </span>
-                    <span
-                      className={`text-xs opacity-60 font-bold uppercase tracking-widest mt-1 ${mono.className}`}
-                    >
-                      {log.time}
-                    </span>
+              {logs.map((l) => {
+                const t = new Date(l.created_at);
+                const diffMs = Date.now() - t.getTime();
+                const mins = Math.floor(diffMs / 60000);
+                const hrs = Math.floor(mins / 60);
+                const time = hrs >= 1 ? `${hrs} hr${hrs > 1 ? "s" : ""} ago` : `${mins} mins ago`;
+                const type =
+                  l.action === "chat_joined"
+                    ? "success"
+                    : l.action === "visitor_online"
+                    ? "info"
+                    : l.action === "message_posted"
+                    ? "info"
+                    : l.action === "chat_started"
+                    ? "info"
+                    : "info";
+                let text = l.action;
+                if (l.action === "chat_joined") {
+                  text = `Chat joined by ${l.metadata?.assigneeName || "Agent"}`;
+                } else if (l.action === "visitor_online") {
+                  text = "New visitor online";
+                } else if (l.action === "message_posted") {
+                  const sender = l.metadata?.sender || "";
+                  const short = (l.resource_id || "").slice(0, 6);
+                  text = `Message by ${sender} in chat ${short}`;
+                } else if (l.action === "chat_started") {
+                  const short = (l.resource_id || "").slice(0, 6);
+                  text = `Chat ${short} started`;
+                }
+                return (
+                  <div
+                    key={l.id}
+                    className={`flex gap-4 items-start border-l-4 ${
+                      type === "success" ? "border-green-500" : "border-blue-500"
+                    } pl-4`}
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-bold uppercase tracking-tight text-lg leading-tight">
+                        {text}
+                      </span>
+                      <span
+                        className={`text-xs opacity-60 font-bold uppercase tracking-widest mt-1 ${mono.className}`}
+                      >
+                        {time}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

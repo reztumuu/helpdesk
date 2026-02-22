@@ -43,6 +43,18 @@ export async function POST(req: Request) {
   });
 
   try {
+    await prisma.activityLog.create({
+      data: {
+        user_id: sender === 'admin' ? (senderId as string) : chat.website.user_id,
+        action: 'message_posted',
+        resource_type: 'chat',
+        resource_id: chatId,
+        metadata: { type: type || 'text', sender },
+      },
+    });
+  } catch {}
+
+  try {
     await fetch('http://localhost:3000/_socket/emit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

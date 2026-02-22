@@ -55,6 +55,17 @@ export async function POST(req: Request) {
           session_id: sid,
         },
       });
+      try {
+        await prisma.activityLog.create({
+          data: {
+            user_id: website.user_id,
+            action: 'visitor_online',
+            resource_type: 'visitor',
+            resource_id: visitor.id,
+            metadata: { sessionId: sid },
+          },
+        });
+      } catch {}
     }
 
     return NextResponse.json({ sessionId: sid, visitorId: visitor.id, websiteId: website.id });
