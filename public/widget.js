@@ -34,10 +34,11 @@
     });
     iframe.addEventListener('error', function() {
       loaded = false;
-      showFallback(container, iframe);
     });
     setTimeout(function() {
-      if (!loaded) showFallback(container, iframe);
+      if (!loaded) {
+        // keep iframe; the inner widget handles its own initial UI
+      }
     }, 2000);
 
     window.addEventListener('message', (event) => {
@@ -64,48 +65,7 @@
     });
   }
 
-  function showFallback(container, iframe) {
-    container.style.position = 'fixed';
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.style.display = 'inline-flex';
-    btn.style.alignItems = 'center';
-    btn.style.justifyContent = 'center';
-    btn.style.width = '80px';
-    btn.style.height = '80px';
-    btn.style.border = 'none';
-    btn.style.cursor = 'pointer';
-    btn.style.borderRadius = '50%';
-    btn.style.backgroundColor = '#f59e0b';
-    btn.style.color = '#fff';
-    btn.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
-    btn.style.textDecoration = 'none';
-    btn.style.position = 'absolute';
-    btn.style.top = '0';
-    btn.style.left = '0';
-    btn.style.right = '0';
-    btn.style.bottom = '0';
-    btn.style.zIndex = '1';
-    const img = document.createElement('img');
-    img.src = baseUrl + '/messages-square.svg';
-    img.alt = 'Widget Icon';
-    img.style.width = '28px';
-    img.style.height = '28px';
-    img.style.pointerEvents = 'none';
-    btn.appendChild(img);
-    container.appendChild(btn);
-
-    btn.addEventListener('click', function() {
-      container.style.width = '380px';
-      container.style.height = '520px';
-      container.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
-      iframe.style.borderRadius = '12px';
-      btn.remove();
-      try {
-        iframe.contentWindow && iframe.contentWindow.postMessage({ type: 'helpdesk-toggle', open: true }, '*');
-      } catch {}
-    });
-  }
+  // no external fallback; initial UI handled by /widget page
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootstrap);

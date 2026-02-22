@@ -4,7 +4,22 @@ import crypto from 'crypto';
 
 export async function POST(req: Request) {
   try {
-    const { apiKey, sessionId } = await req.json();
+    let apiKey: string | null = null;
+    let sessionId: string | undefined = undefined;
+    try {
+      const body = await req.json();
+      apiKey = (body && typeof body.apiKey === 'string') ? body.apiKey : null;
+      sessionId = (body && typeof body.sessionId === 'string') ? body.sessionId : undefined;
+    } catch {
+      apiKey = null;
+      sessionId = undefined;
+    }
+    if (!apiKey) {
+      const { searchParams } = new URL(req.url);
+      apiKey = searchParams.get('apiKey');
+      const sidQ = searchParams.get('sessionId');
+      if (sidQ) sessionId = sidQ;
+    }
 
     if (!apiKey) {
       return NextResponse.json({ error: 'API key is required' }, { status: 400 });

@@ -22,6 +22,7 @@ export default function WidgetPage() {
   const [assigneeName, setAssigneeName] = useState<string>('');
   const [iconFailed, setIconFailed] = useState(false);
   const [iconSrc, setIconSrc] = useState<string | null>(null);
+  const [iconReady, setIconReady] = useState(false);
   const heartbeatRef = useRef<any>(null);
 
   useEffect(() => {
@@ -46,12 +47,25 @@ export default function WidgetPage() {
               const u = data.iconUrl as string;
               if (u && typeof u === 'string' && u.length > 0) {
                 const abs = /^https?:\/\//i.test(u) ? u : `${window.location.origin}${u}`;
-                setIconSrc(abs);
+                setIconReady(false);
+                const probe = new Image();
+                probe.onload = () => {
+                  setIconSrc(abs);
+                  setIconReady(true);
+                };
+                probe.onerror = () => {
+                  setIconFailed(true);
+                  setIconSrc(null);
+                  setIconReady(false);
+                };
+                probe.src = abs;
               } else {
                 setIconSrc(null);
+                setIconReady(false);
               }
             } catch {
               setIconSrc(null);
+              setIconReady(false);
             }
             
             // Connect to socket
@@ -346,28 +360,26 @@ export default function WidgetPage() {
     };
   }, [isAdminTyping]);
 
-  if (!config) return null;
-
   return (
     <div className="h-full w-full flex flex-col bg-transparent overflow-hidden">
-      <style jsx global>{`
+      <style>{`
         html, body {
           height: 100%;
           margin: 0;
           padding: 0;
           overflow: hidden;
         }
-        .no-scrollbar {
+        .hd-no-scrollbar {
           scrollbar-width: none;
           -ms-overflow-style: none;
         }
-        .no-scrollbar::-webkit-scrollbar {
+        .hd-no-scrollbar::-webkit-scrollbar {
           display: none;
         }
       `}</style>
       {isOpen ? (
         <div className="flex-1 bg-white flex flex-col shadow-xl rounded-lg overflow-hidden border">
-          <div className="px-4 py-3 text-white flex justify-between items-center" style={{ backgroundColor: config.primary_color || '#2563eb' }}>
+          <div className="px-4 py-3 text-white flex justify-between items-center" style={{ backgroundColor: (config?.primary_color || '#2563eb') }}>
             <div>
               <h3 className="font-bold">Support</h3>
               <p className="text-xs opacity-90">{assigneeName ? `Agent ${assigneeName} joined` : 'We typically reply in a few minutes'}</p>
@@ -377,10 +389,10 @@ export default function WidgetPage() {
             </button>
           </div>
           
-          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 px-4 pt-2 pb-2 no-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 px-4 pt-2 pb-2 hd-no-scrollbar">
             {messages.length === 0 ? (
               <div className="h-full flex items-center justify-center text-gray-500">
-                <p>{config.welcome_message}</p>
+                <p>{config?.welcome_message || 'How can we help?'}</p>
               </div>
             ) : (
               <>
@@ -393,7 +405,7 @@ export default function WidgetPage() {
                           : 'bg-white border text-gray-800 rounded-bl-none shadow-sm'
                       }`}
                       style={{
-                        ...(msg.sender_type === 'visitor' ? { backgroundColor: config.primary_color || '#2563eb' } : {}),
+                        ...(msg.sender_type === 'visitor' ? { backgroundColor: (config?.primary_color || '#2563eb') } : {}),
                         wordBreak: 'break-word',
                         overflowWrap: 'anywhere'
                       }}
@@ -425,7 +437,7 @@ export default function WidgetPage() {
             <button 
                 type="submit" 
                 className="h-9 w-9 rounded-full text-white hover:opacity-90 flex items-center justify-center"
-                style={{ backgroundColor: config.primary_color || '#2563eb' }}
+                style={{ backgroundColor: (config?.primary_color || '#2563eb') }}
             >
                 <Send size={18} />
             </button>
@@ -435,12 +447,12 @@ export default function WidgetPage() {
         <div className="flex justify-end items-end h-full">
           <button
             onClick={toggleOpen}
-            className="w-[80px] h-[80px] rounded-full text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform relative"
-            style={{ backgroundColor: config.primary_color || '#f59e0b' }}
+            className="w-[80px] h-[80px] rounded-full text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform relative outline-none focus:outline-none"
+            style={{ backgroundColor: (config?.primary_color || '#f59e0b') }}
             aria-label="Open chat"
           >
-            {iconSrc && !iconFailed ? (
-              <img src={iconSrc} alt="" className="w-9 h-9 object-cover rounded" onError={() => setIconFailed(true)} />
+            {iconReady && iconSrc ? (
+              <img src={iconSrc} alt="" className="w-9 h-9 object-cover rounded" />
             ) : (
               <MessagesSquare size={32} className="text-white" />
             )}
