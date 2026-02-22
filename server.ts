@@ -126,6 +126,15 @@ app.prepare().then(() => {
         }
     });
     
+    socket.on('visitor-offline', (data) => {
+        const { websiteId, apiKey, chatId } = data || {};
+        if (apiKey) {
+            io.to(`website-${apiKey}`).emit('visitor-offline', { websiteId, apiKey, chatId });
+        } else if (websiteId) {
+            io.to(`website-${websiteId}`).emit('visitor-offline', { websiteId, chatId });
+        }
+    });
+    
     socket.on('chat-started', (data) => {
         const { websiteId, apiKey, chatId } = data || {};
         if (apiKey) {

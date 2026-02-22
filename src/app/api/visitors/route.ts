@@ -12,6 +12,8 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const websiteId = searchParams.get('websiteId');
   const countOnly = searchParams.get('count') === 'true';
+  const onlineOnly = searchParams.get('online') === 'true';
+  const thresholdSec = Number(searchParams.get('threshold') || '30');
 
   const where: any = {};
 
@@ -22,12 +24,22 @@ export async function GET(req: Request) {
   // Access to all websites for admin/agent created by super admin
 
   if (countOnly) {
-    const total = await prisma.visitor.count({ where });
+    const whereOnline = { ...where };
+    if (onlineOnly) {
+      const cutoff = new Date(Date.now() - thresholdSec * 1000);
+      (whereOnline as any).last_seen = { gte: cutoff };
+    }
+    const total = await prisma.visitor.count({ where: whereOnline });
     return NextResponse.json({ total });
   }
 
+  const whereList = { ...where };
+  if (onlineOnly) {
+    const cutoff = new Date(Date.now() - thresholdSec * 1000);
+    (whereList as any).last_seen = { gte: cutoff };
+  }
   const visitors = await prisma.visitor.findMany({
-    where,
+    where: whereList,
     orderBy: { last_seen: 'desc' },
   });
 

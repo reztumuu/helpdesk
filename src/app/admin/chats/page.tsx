@@ -34,6 +34,8 @@ export default function ChatsPage() {
   const typingStopTimerRef = useRef<any>(null);
   const typingDotsTimerRef = useRef<any>(null);
   const [me, setMe] = useState<any>(null);
+  const [tab, setTab] = useState<"chats" | "visitors">("chats");
+  const [visitors, setVisitors] = useState<any[]>([]);
 
   useEffect(() => {
     const newSocket = io("http://localhost:3000");
@@ -145,10 +147,17 @@ export default function ChatsPage() {
     socket.on("visitor-online", () => {
       fetchChats();
       fetchVisitorCount();
+      fetchVisitorsOnline();
     });
 
     socket.on("chat-started", () => {
       fetchChats();
+      fetchVisitorCount();
+      fetchVisitorsOnline();
+    });
+    
+    socket.on("visitor-offline", () => {
+      fetchVisitorsOnline();
       fetchVisitorCount();
     });
 
@@ -205,6 +214,7 @@ export default function ChatsPage() {
       socket.off("chat-joined");
       socket.off("user-typing");
       socket.off("user-stopped-typing");
+      socket.off("visitor-offline");
     };
   }, [socket, activeChat]);
 
@@ -232,12 +242,23 @@ export default function ChatsPage() {
 
   const fetchVisitorCount = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch("/api/visitors?count=true", {
+    const res = await fetch("/api/visitors?count=true&online=true", {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
       const data = await res.json();
       setVisitorCount(data.total ?? 0);
+    }
+  };
+  
+  const fetchVisitorsOnline = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch("/api/visitors?online=true", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setVisitors(data || []);
     }
   };
 
@@ -412,10 +433,51 @@ export default function ChatsPage() {
             >
               <History className="w-4 h-4" /> Message Logs
             </h2>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setTab("chats")}
+                className={`px-3 py-1 border-2 border-background font-bold uppercase tracking-widest text-xs ${tab === "chats" ? "bg-background text-foreground" : "bg-foreground/20 text-background"}`}
+              >
+                Chats
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTab("visitors");
+                  fetchVisitorsOnline();
+                }}
+                className={`px-3 py-1 border-2 border-background font-bold uppercase tracking-widest text-xs ${tab === "visitors" ? "bg-background text-foreground" : "bg-foreground/20 text-background"}`}
+              >
+                Visitors
+              </button>
+            </div>
           </div>
 
           <div className="overflow-y-auto flex-1 bg-foreground/5">
-            {chats.length === 0 ? (
+            {tab === "visitors" ? (
+              visitors.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center p-8 text-center opacity-50">
+                  <Users className="w-12 h-12 mb-4" />
+                  <p className={`text-sm uppercase font-bold tracking-widest ${mono.className}`}>No Visitors Online</p>
+                </div>
+              ) : (
+                visitors.map((v) => (
+                  <div key={v.id} className="w-full text-left p-5 border-b-4 border-foreground transition-all flex flex-col gap-2 bg-background">
+                    <div className="flex justify-between items-center w-full">
+                      <span className={`font-bold uppercase tracking-widest text-sm flex items-center gap-2 ${mono.className}`}>
+                        <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        V_{String(v.id).slice(0, 5)}
+                      </span>
+                      <span className={`text-[10px] font-bold uppercase tracking-widest opacity-60 ${mono.className}`}>
+                        {new Date(v.last_seen).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <p className={`text-sm truncate font-medium opacity-70 ${mono.className}`}>Session: {v.session_id}</p>
+                  </div>
+                ))
+              )
+            ) : chats.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center p-8 text-center opacity-50">
                 <TerminalSquare className="w-12 h-12 mb-4" />
                 <p

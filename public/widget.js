@@ -24,7 +24,6 @@
     iframe.style.height = '100%';
     iframe.style.border = 'none';
     iframe.style.borderRadius = '50%';
-    iframe.style.padding = '4px';
     iframe.style.boxSizing = 'border-box';
     iframe.allow = "camera; microphone; autoplay; encrypted-media; fullscreen";
     container.appendChild(iframe);
@@ -35,10 +34,10 @@
     });
     iframe.addEventListener('error', function() {
       loaded = false;
-      showFallback(container);
+      showFallback(container, iframe);
     });
     setTimeout(function() {
-      if (!loaded) showFallback(container);
+      if (!loaded) showFallback(container, iframe);
     }, 2000);
 
     window.addEventListener('message', (event) => {
@@ -65,8 +64,8 @@
     });
   }
 
-  function showFallback(container) {
-    while (container.firstChild) container.removeChild(container.firstChild);
+  function showFallback(container, iframe) {
+    container.style.position = 'fixed';
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.style.display = 'inline-flex';
@@ -81,6 +80,12 @@
     btn.style.color = '#fff';
     btn.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
     btn.style.textDecoration = 'none';
+    btn.style.position = 'absolute';
+    btn.style.top = '0';
+    btn.style.left = '0';
+    btn.style.right = '0';
+    btn.style.bottom = '0';
+    btn.style.zIndex = '1';
     const img = document.createElement('img');
     img.src = baseUrl + '/messages-square.svg';
     img.alt = 'Widget Icon';
@@ -94,15 +99,11 @@
       container.style.width = '380px';
       container.style.height = '520px';
       container.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
-      while (container.firstChild) container.removeChild(container.firstChild);
-      const iframe = document.createElement('iframe');
-      iframe.src = `${baseUrl}/widget?apiKey=${apiKey}`;
-      iframe.style.width = '100%';
-      iframe.style.height = '100%';
-      iframe.style.border = 'none';
       iframe.style.borderRadius = '12px';
-      iframe.allow = "camera; microphone; autoplay; encrypted-media; fullscreen";
-      container.appendChild(iframe);
+      btn.remove();
+      try {
+        iframe.contentWindow && iframe.contentWindow.postMessage({ type: 'helpdesk-toggle', open: true }, '*');
+      } catch {}
     });
   }
 

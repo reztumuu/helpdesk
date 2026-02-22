@@ -22,6 +22,7 @@ export default function WidgetPage() {
   const [assigneeName, setAssigneeName] = useState<string>('');
   const [iconFailed, setIconFailed] = useState(false);
   const [iconSrc, setIconSrc] = useState<string | null>(null);
+  const heartbeatRef = useRef<any>(null);
 
   useEffect(() => {
     // Get apiKey from URL
@@ -150,6 +151,33 @@ export default function WidgetPage() {
                 setIsAdminTyping(false);
               }
             });
+            
+            if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+            heartbeatRef.current = setInterval(async () => {
+              try {
+                const sid = localStorage.getItem(`helpdesk_session_${key}`);
+                await fetch('/api/visitors/track', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ apiKey: key, sessionId: sid || undefined })
+                });
+                newSocket.emit('visitor-online', { websiteId: data.websiteId, apiKey: key, chatId: chatIdRef.current });
+              } catch {}
+            }, 15000);
+            
+            const off = () => {
+              try {
+                newSocket.emit('visitor-offline', { websiteId: data.websiteId, apiKey: key, chatId: chatIdRef.current });
+              } catch {}
+            };
+            window.addEventListener('beforeunload', off);
+            window.addEventListener('pagehide', off);
+            
+            return () => {
+              if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+              window.removeEventListener('beforeunload', off);
+              window.removeEventListener('pagehide', off);
+            };
         }
       } catch (err) {
           console.error("Failed to load widget config", err);
@@ -286,6 +314,18 @@ export default function WidgetPage() {
       socket.emit('join-chat', chatId);
     }
   }, [chatId, socket]);
+  
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'helpdesk-toggle') {
+        setIsOpen(!!event.data.open);
+      }
+    };
+    window.addEventListener('message', handler as any);
+    return () => {
+      window.removeEventListener('message', handler as any);
+    };
+  }, []);
   
   useEffect(() => {
     scrollToBottom();
