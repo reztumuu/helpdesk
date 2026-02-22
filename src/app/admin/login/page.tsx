@@ -173,7 +173,7 @@ export default function LoginPage() {
                 href="/admin/signup"
                 className="underline underline-offset-4 hover:opacity-70"
               >
-                Request Key
+                Sign Up
               </Link>
             </p>
           </div>
