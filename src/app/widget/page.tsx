@@ -70,6 +70,7 @@ export default function WidgetPage() {
                   chatIdRef.current = savedChatId;
                   newSocket.emit('join-chat', savedChatId);
                   await loadMessages(savedChatId, t.sessionId);
+                  await loadAssignee(savedChatId, t.sessionId);
                 }
               }
             } catch {}
@@ -83,6 +84,7 @@ export default function WidgetPage() {
                 try {
                   const sid = localStorage.getItem(`helpdesk_session_${key}`);
                   if (sid) await loadMessages(started, sid);
+                  if (sid) await loadAssignee(started, sid);
                 } catch {}
               } else {
                 newSocket.emit('visitor-online', { websiteId: data.websiteId, apiKey: key });
@@ -112,6 +114,12 @@ export default function WidgetPage() {
               if (chatIdRef.current && data.chatId === chatIdRef.current) {
                 const name = typeof data.assigneeName === 'string' ? data.assigneeName : '';
                 if (name) setAssigneeName(name);
+              }
+            });
+            
+            newSocket.on('chat-ended', (data: any) => {
+              if (chatIdRef.current && data.chatId === chatIdRef.current) {
+                setAssigneeName('');
               }
             });
             
@@ -230,6 +238,17 @@ export default function WidgetPage() {
     } catch (e) {
       console.error('Failed to load messages history', e);
     }
+  };
+  
+  const loadAssignee = async (cid: string, sid: string) => {
+    try {
+      const res = await fetch(`/api/chats/visitor?chatId=${cid}&sessionId=${sid}`);
+      if (res.ok) {
+        const data = await res.json();
+        const name = data?.assignee?.name || '';
+        if (name) setAssigneeName(name);
+      }
+    } catch {}
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
