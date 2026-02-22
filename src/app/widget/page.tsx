@@ -24,8 +24,6 @@ export default function WidgetPage() {
   const [iconSrc, setIconSrc] = useState<string | null>(null);
   const [iconReady, setIconReady] = useState(false);
   const heartbeatRef = useRef<any>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const playedMsgIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     // Get apiKey from URL
@@ -137,16 +135,6 @@ export default function WidgetPage() {
                     });
                     scrollToBottom();
                     setIsAdminTyping(false);
-                    if (data.sender === 'admin') {
-                      const id = typeof data.id === 'string' ? data.id : '';
-                      if (id && playedMsgIdsRef.current.has(id)) return;
-                      if (id) playedMsgIdsRef.current.add(id);
-                      const a = audioRef.current;
-                      if (a) {
-                        a.currentTime = 0;
-                        a.play().catch(() => {});
-                      }
-                    }
                 }
                 if (!isOpen) setUnread((u) => u + 1);
             });
@@ -476,14 +464,13 @@ export default function WidgetPage() {
               <MessagesSquare size={32} className="text-white" />
             )}
             {unread > 0 && (
-              <span className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center pointer-events-none">
+              <span className="absolute top-2 right-2 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                 {unread}
               </span>
             )}
           </button>
         </div>
       )}
-      <audio ref={audioRef} src="/sound/alarm.mp3" preload="auto" />
     </div>
   );
 }
