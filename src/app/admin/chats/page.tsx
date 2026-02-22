@@ -198,6 +198,7 @@ export default function ChatsPage() {
           () => setIsTypingVisitor(false),
           3000,
         );
+        scrollToBottom();
       }
     });
 
@@ -374,6 +375,12 @@ export default function ChatsPage() {
     return () => {
       if (typingDotsTimerRef.current) clearInterval(typingDotsTimerRef.current);
     };
+  }, [isTypingVisitor]);
+
+  useEffect(() => {
+    if (isTypingVisitor) {
+      scrollToBottom();
+    }
   }, [isTypingVisitor]);
 
   useEffect(() => {

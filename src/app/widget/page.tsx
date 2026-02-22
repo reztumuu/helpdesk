@@ -157,6 +157,7 @@ export default function WidgetPage() {
                 setIsAdminTyping(true);
                 if (typingStopTimerRef.current) clearTimeout(typingStopTimerRef.current);
                 typingStopTimerRef.current = setTimeout(() => setIsAdminTyping(false), 3000);
+                scrollToBottom();
               }
             });
             
@@ -358,6 +359,12 @@ export default function WidgetPage() {
     return () => {
       if (typingDotsTimerRef.current) clearInterval(typingDotsTimerRef.current);
     };
+  }, [isAdminTyping]);
+
+  useEffect(() => {
+    if (isAdminTyping) {
+      scrollToBottom();
+    }
   }, [isAdminTyping]);
 
   return (
