@@ -123,8 +123,8 @@ export default function WidgetPage() {
             }
             
             newSocket.on('new-message', (data: any) => {
-                // Check if message belongs to this chat or if we should start showing messages
-                if (chatIdRef.current && data.chatId === chatIdRef.current) {
+                const belongs = !!chatIdRef.current && data.chatId === chatIdRef.current;
+                if (belongs) {
                     const incoming = {
                       content: data.content,
                       sender_type: data.sender === 'admin' ? 'admin' : 'visitor',
@@ -137,17 +137,20 @@ export default function WidgetPage() {
                     });
                     scrollToBottom();
                     setIsAdminTyping(false);
-                }
-                if (!isOpen) setUnread((u) => u + 1);
-                if (!isOpen && data.sender === 'admin') {
-                  const a = audioRef.current;
-                  const id = typeof data.id === 'string' ? data.id : '';
-                  if (id && playedMsgIdsRef.current.has(id)) return;
-                  if (id) playedMsgIdsRef.current.add(id);
-                  if (a) {
-                    a.currentTime = 0;
-                    a.play().catch(() => {});
-                  }
+                    if (!isOpen) {
+                      const id = typeof data.id === 'string' ? data.id : '';
+                      if (!id || !playedMsgIdsRef.current.has(id)) {
+                        if (id) playedMsgIdsRef.current.add(id);
+                        setUnread((u) => u + 1);
+                        if (data.sender === 'admin') {
+                          const a = audioRef.current;
+                          if (a) {
+                            a.currentTime = 0;
+                            a.play().catch(() => {});
+                          }
+                        }
+                      }
+                    }
                 }
             });
             
