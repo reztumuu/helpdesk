@@ -69,7 +69,7 @@ export default function LoginPage() {
             <MessageSquare className="w-6 h-6 fill-current" />
           </div>
           <span className="font-extrabold text-3xl tracking-tighter uppercase">
-            HelpDesk_
+            BantuanQu_
           </span>
         </Link>
 

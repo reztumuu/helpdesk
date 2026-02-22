@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   Terminal,
   Code2,
@@ -36,7 +37,7 @@ export default function DocsPage() {
               <Terminal className="w-5 h-5 fill-current" />
             </div>
             <span className="font-extrabold text-2xl tracking-tighter uppercase">
-              HelpDesk_
+              BantuanQu_
             </span>
             <span
               className={`text-xs font-bold uppercase tracking-widest bg-foreground text-background px-2 py-0.5 ml-2 ${mono.className}`}
@@ -44,7 +45,8 @@ export default function DocsPage() {
               SYS.DOCS
             </span>
           </Link>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
             <Link
               href="/"
               className={`font-bold uppercase tracking-widest hidden md:flex items-center gap-2 hover:opacity-70 transition-opacity ${mono.className}`}
@@ -98,7 +100,7 @@ export default function DocsPage() {
             <p
               className={`text-lg md:text-xl font-bold uppercase tracking-widest opacity-80 leading-relaxed max-w-2xl ${mono.className}`}
             >
-              Comprehensive technical documentation for HelpDesk_ Operator and
+              Comprehensive technical documentation for BantuanQu_ Operator and
               Integration protocols.
             </p>
           </section>
@@ -116,7 +118,7 @@ export default function DocsPage() {
               System.Init
             </h2>
             <div className="text-lg opacity-80 leading-relaxed font-medium">
-              Initialize the helpdesk runtime environment. Requires Node.js and
+              Initialize the BantuanQu runtime environment. Requires Node.js and
               a functional MySQL instance.
             </div>
 
@@ -134,7 +136,7 @@ export default function DocsPage() {
                 <span className="text-purple-600 dark:text-purple-400">
                   DATABASE_URL
                 </span>
-                ="mysql://user:pass@localhost:3306/helpdesk"
+                ="mysql://user:pass@localhost:3306/bantuanqu"
                 <span className="text-purple-600 dark:text-purple-400">
                   JWT_SECRET
                 </span>

@@ -35,7 +35,7 @@ export default function LandingPage() {
               <MessageSquare className="w-6 h-6 fill-current" />
             </div>
             <span className="font-extrabold text-2xl tracking-tighter uppercase">
-              HelpDesk_
+              BantuanQu_
             </span>
           </div>
           <div
@@ -140,7 +140,7 @@ export default function LandingPage() {
                   <span className="font-bold text-green-600 dark:text-green-400">
                     npm
                   </span>{" "}
-                  install @helpdesk/core
+                  install @bantuanqu/core
                 </div>
                 <br />
                 <div className="opacity-50 mb-4 select-none">
@@ -150,11 +150,11 @@ export default function LandingPage() {
                   <span className="text-purple-600 dark:text-purple-400 font-bold">
                     import
                   </span>{" "}
-                  {"{ HelpDesk }"}{" "}
+                  {"{ BantuanQu }"}{" "}
                   <span className="text-purple-600 dark:text-purple-400 font-bold">
                     from
                   </span>{" "}
-                  '@helpdesk/core'
+                  '@bantuanqu/core'
                   <br />
                   <br />
                   <span className="text-purple-600 dark:text-purple-400 font-bold">
@@ -164,7 +164,7 @@ export default function LandingPage() {
                   <span className="text-blue-600 dark:text-blue-400 font-bold">
                     new
                   </span>{" "}
-                  HelpDesk({"{"}
+                  BantuanQu({"{"}
                   <br />
                   &nbsp;&nbsp;apiKey:{" "}
                   <span className="text-orange-600 dark:text-orange-400">
@@ -278,7 +278,7 @@ export default function LandingPage() {
             <MessageSquare className="w-4 h-4 fill-current" />
           </div>
           <span className="font-extrabold text-xl tracking-tighter uppercase">
-            HelpDesk_
+            BantuanQu_
           </span>
           <span
             className={`text-sm opacity-50 ml-4 hidden md:inline-block ${mono.className}`}

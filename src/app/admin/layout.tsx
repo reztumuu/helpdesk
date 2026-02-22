@@ -82,15 +82,13 @@ export default function AdminLayout({
               <MessageSquare className="w-4 h-4 fill-current" />
             </div>
             <span className="text-xl font-extrabold uppercase tracking-tighter hidden sm:block">
-              HelpDesk_
+              BantuanQu_
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
           <ThemeToggle />
-
-          {/* Decorative status indicator */}
           <div
             className={`hidden md:flex items-center gap-2 border-2 border-foreground px-3 py-1 bg-foreground text-background text-xs font-bold uppercase tracking-widest ${mono.className}`}
           >
