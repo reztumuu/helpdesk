@@ -40,7 +40,10 @@ export default function AdminLayout({
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
-    if (!token && pathname !== "/admin/login") {
+    const isPublicRoute =
+      pathname === "/admin/login" || pathname === "/admin/signup";
+
+    if (!token && !isPublicRoute) {
       router.push("/admin/login");
     } else if (userData) {
       setUser(JSON.parse(userData));
@@ -54,11 +57,14 @@ export default function AdminLayout({
     router.push("/admin/login");
   };
 
-  if (pathname === "/admin/login") {
+  const isPublicRoute =
+    pathname === "/admin/login" || pathname === "/admin/signup";
+
+  if (isPublicRoute) {
     return <>{children}</>;
   }
 
-  if (!user && pathname !== "/admin/login") return null;
+  if (!user && !isPublicRoute) return null;
 
   return (
     <div
