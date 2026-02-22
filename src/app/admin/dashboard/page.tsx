@@ -93,10 +93,8 @@ export default function DashboardPage() {
       <div className="max-w-[1600px] mx-auto relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-4 border-foreground pb-8 mb-12 gap-6">
           <div className="flex flex-col gap-2">
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter uppercase leading-none">
-              Command
-              <br />
-              Center_
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter uppercase leading-none whitespace-nowrap">
+              Command Center_
             </h1>
             <p
               className={`text-lg md:text-xl font-bold uppercase tracking-widest bg-foreground text-background inline-block px-3 py-1 mt-2 w-fit ${mono.className}`}
@@ -139,15 +137,15 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="border-4 border-foreground bg-foreground text-background p-6 shadow-[8px_8px_0_0_var(--foreground)] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_var(--foreground)] transition-all group">
-            <div className="flex items-center justify-between border-b-2 border-background pb-4 mb-4">
+          <div className="border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
+            <div className="flex items-center justify-between border-b-2 border-foreground pb-4 mb-4">
               <h3
                 className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}
               >
                 Active Chats
               </h3>
-              <div className="w-10 h-10 border-2 border-background flex items-center justify-center bg-purple-500/10 group-hover:bg-purple-500 group-hover:border-purple-500 transition-colors">
-                <MessageSquare className="w-5 h-5 text-purple-400 group-hover:text-white" />
+              <div className="w-10 h-10 border-2 border-foreground flex items-center justify-center bg-purple-500/10 group-hover:bg-purple-500 group-hover:text-foreground transition-colors">
+                <MessageSquare className="w-5 h-5 text-purple-600 dark:text-purple-400 group-hover:text-white" />
               </div>
             </div>
             <div className="flex items-baseline gap-3">
@@ -163,7 +161,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group lg:translate-y-4">
+          <div className="border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
             <div className="flex items-center justify-between border-b-2 border-foreground pb-4 mb-4">
               <h3
                 className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}
@@ -186,7 +184,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group lg:translate-y-4">
+          <div className="border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
             <div className="flex items-center justify-between border-b-2 border-foreground pb-4 mb-4">
               <h3
                 className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}
