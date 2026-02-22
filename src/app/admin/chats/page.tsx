@@ -312,7 +312,9 @@ export default function ChatsPage() {
         const updated = await res.json();
         setActiveChat(updated);
         setChats((prev) =>
-          prev.map((c) => (c.id === updated.id ? updated : c)),
+          prev.map((c) =>
+            c.id === updated.id ? { ...c, ...updated, messages: c.messages } : c,
+          ),
         );
         if (socket) socket.emit("join-chat", updated.id);
       }
@@ -457,7 +459,7 @@ export default function ChatsPage() {
                     <p
                       className={`text-sm truncate font-medium ${mono.className} ${activeChat?.id === chat.id ? "opacity-90" : "opacity-70"}`}
                     >
-                      {chat.messages[0]?.content || "---"}
+                      {chat.messages?.[0]?.content || "---"}
                     </p>
 
                     {unread[chat.id] && unread[chat.id] > 0 && (

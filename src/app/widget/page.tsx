@@ -19,6 +19,7 @@ export default function WidgetPage() {
   const [typingDots, setTypingDots] = useState('.');
   const typingStopTimerRef = useRef<any>(null);
   const typingDotsTimerRef = useRef<any>(null);
+  const [assigneeName, setAssigneeName] = useState<string>('');
 
   useEffect(() => {
     // Get apiKey from URL
@@ -105,6 +106,13 @@ export default function WidgetPage() {
                     setIsAdminTyping(false);
                 }
                 if (!isOpen) setUnread((u) => u + 1);
+            });
+            
+            newSocket.on('chat-joined', (data: any) => {
+              if (chatIdRef.current && data.chatId === chatIdRef.current) {
+                const name = typeof data.assigneeName === 'string' ? data.assigneeName : '';
+                if (name) setAssigneeName(name);
+              }
             });
             
             newSocket.on('user-typing', (data: any) => {
@@ -268,20 +276,35 @@ export default function WidgetPage() {
   if (!config) return null;
 
   return (
-    <div className="h-screen w-full flex flex-col bg-transparent">
+    <div className="h-full w-full flex flex-col bg-transparent overflow-hidden">
+      <style jsx global>{`
+        html, body {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+        }
+        .no-scrollbar {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       {isOpen ? (
         <div className="flex-1 bg-white flex flex-col shadow-xl rounded-lg overflow-hidden border">
           <div className="px-4 py-3 text-white flex justify-between items-center" style={{ backgroundColor: config.primary_color || '#2563eb' }}>
             <div>
               <h3 className="font-bold">Support</h3>
-              <p className="text-xs opacity-90">We typically reply in a few minutes</p>
+              <p className="text-xs opacity-90">{assigneeName ? `Agent ${assigneeName} joined` : 'We typically reply in a few minutes'}</p>
             </div>
             <button onClick={toggleOpen} className="text-white hover:opacity-80">
                 <X size={20} />
             </button>
           </div>
           
-          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 px-4 pt-2 pb-2">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 px-4 pt-2 pb-2 no-scrollbar">
             {messages.length === 0 ? (
               <div className="h-full flex items-center justify-center text-gray-500">
                 <p>{config.welcome_message}</p>
