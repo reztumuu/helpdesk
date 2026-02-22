@@ -167,7 +167,7 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] border-4 border-background bg-foreground text-background p-6 hover:-translate-y-1 transition-all group">
+            <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] border-4 border-background bg-foreground text-background p-6 shadow-[8px_8px_0_0_var(--foreground)] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_var(--foreground)] transition-all group">
               <div className="flex items-center justify-between border-b-2 border-background pb-4 mb-4">
                 <h3
                   className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}
