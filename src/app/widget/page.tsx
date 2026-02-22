@@ -24,6 +24,8 @@ export default function WidgetPage() {
   const [iconSrc, setIconSrc] = useState<string | null>(null);
   const [iconReady, setIconReady] = useState(false);
   const heartbeatRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playedMsgIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     // Get apiKey from URL
@@ -137,6 +139,16 @@ export default function WidgetPage() {
                     setIsAdminTyping(false);
                 }
                 if (!isOpen) setUnread((u) => u + 1);
+                if (!isOpen && data.sender === 'admin') {
+                  const a = audioRef.current;
+                  const id = typeof data.id === 'string' ? data.id : '';
+                  if (id && playedMsgIdsRef.current.has(id)) return;
+                  if (id) playedMsgIdsRef.current.add(id);
+                  if (a) {
+                    a.currentTime = 0;
+                    a.play().catch(() => {});
+                  }
+                }
             });
             
             newSocket.on('chat-joined', (data: any) => {
@@ -214,6 +226,16 @@ export default function WidgetPage() {
 
   const toggleOpen = () => {
       setIsOpen(!isOpen);
+      const a = audioRef.current;
+      if (a) {
+        const prevMuted = a.muted;
+        a.muted = true;
+        a.play().then(() => {
+          a.pause();
+          a.currentTime = 0;
+          a.muted = prevMuted;
+        }).catch(() => {});
+      }
   };
   
   const startChat = async (keyOverride?: string) => {
@@ -369,6 +391,7 @@ export default function WidgetPage() {
 
   return (
     <div className="h-full w-full flex flex-col bg-transparent overflow-hidden">
+      <audio ref={audioRef} src="/sound/alarm.mp3" preload="auto" />
       <style>{`
         html, body {
           height: 100%;
@@ -464,7 +487,7 @@ export default function WidgetPage() {
               <MessagesSquare size={32} className="text-white" />
             )}
             {unread > 0 && (
-              <span className="absolute top-2 right-2 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+              <span className="absolute top-2 right-2 bg-red-600 text-white text-[12px] w-[22px] h-[22px] rounded-full inline-flex items-center justify-center shadow">
                 {unread}
               </span>
             )}
