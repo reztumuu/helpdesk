@@ -1,134 +1,224 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { LayoutDashboard, Globe, MessageSquare, BarChart, LogOut, Users, Settings, User, Menu, X } from 'lucide-react';
-import UnreadBadge from '@/components/UnreadBadge';
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import {
+  LayoutDashboard,
+  Globe,
+  MessageSquare,
+  BarChart,
+  LogOut,
+  Users,
+  Settings,
+  User,
+  Menu,
+  X,
+  Terminal,
+} from "lucide-react";
+import UnreadBadge from "@/components/UnreadBadge";
+import ThemeToggle from "@/components/ThemeToggle";
+import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["400", "600", "800"],
+});
+const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "700"] });
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
 
-    if (!token && pathname !== '/admin/login') {
-      router.push('/admin/login');
+    if (!token && pathname !== "/admin/login") {
+      router.push("/admin/login");
     } else if (userData) {
       setUser(JSON.parse(userData));
     }
   }, [router, pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    router.push('/admin/login');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    router.push("/admin/login");
   };
 
-  if (pathname === '/admin/login') {
+  if (pathname === "/admin/login") {
     return <>{children}</>;
   }
 
-  if (!user && pathname !== '/admin/login') return null;
+  if (!user && pathname !== "/admin/login") return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur border-b">
-        <div className="w-full px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+    <div
+      className={`min-h-screen bg-background text-foreground ${display.className} selection:bg-foreground selection:text-background flex flex-col`}
+    >
+      <header className="sticky top-0 z-50 bg-background border-b-4 border-foreground h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-[0_4px_0_0_currentColor]">
+        <div className="flex items-center gap-4">
+          <button
+            className="lg:hidden p-2 border-2 border-foreground bg-foreground text-background hover:bg-background hover:text-foreground transition-colors group"
+            onClick={() => setSidebarOpen((o) => !o)}
+            aria-label="Toggle menu"
+          >
+            {sidebarOpen ? (
+              <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            ) : (
+              <Menu className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            )}
+          </button>
           <div className="flex items-center gap-3">
-            <button
-              className="lg:hidden p-2 rounded-md hover:bg-gray-100"
-              onClick={() => setSidebarOpen((o) => !o)}
-              aria-label="Toggle menu"
-            >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-            <span className="text-xl font-bold text-blue-600">Helpdesk</span>
+            <div className="w-8 h-8 border-2 border-foreground bg-foreground text-background flex items-center justify-center">
+              <MessageSquare className="w-4 h-4 fill-current" />
+            </div>
+            <span className="text-xl font-extrabold uppercase tracking-tighter hidden sm:block">
+              HelpDesk_
+            </span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/admin/profile" className="flex items-center gap-2 hover:opacity-80">
-              <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
-                {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-gray-600 text-sm">{(user?.name || 'U')[0]}</span>
-                )}
-              </div>
-              <div className="hidden sm:block">
-                <div className="text-sm font-medium">{user?.name}</div>
-                <div className="text-xs text-gray-500 capitalize">{user?.role?.replace('_', ' ')}</div>
-              </div>
-            </Link>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+
+          {/* Decorative status indicator */}
+          <div
+            className={`hidden md:flex items-center gap-2 border-2 border-foreground px-3 py-1 bg-foreground text-background text-xs font-bold uppercase tracking-widest ${mono.className}`}
+          >
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse border border-green-700" />
+            Sys: Online
           </div>
+
+          <Link
+            href="/admin/profile"
+            className="flex items-center gap-3 hover:-translate-y-0.5 transition-transform group"
+          >
+            <div className="hidden sm:flex flex-col items-end">
+              <div className={`text-sm font-bold uppercase tracking-tight`}>
+                {user?.name}
+              </div>
+              <div
+                className={`text-[10px] uppercase font-bold tracking-widest bg-foreground text-background px-1.5 py-0.5 ${mono.className}`}
+              >
+                {user?.role?.replace("_", " ")}
+              </div>
+            </div>
+            <div className="w-10 h-10 border-2 border-foreground rounded-none bg-background overflow-hidden flex items-center justify-center shadow-[4px_4px_0_0_currentColor] group-hover:shadow-[6px_6px_0_0_currentColor] transition-shadow">
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt="Avatar"
+                  className="w-full h-full object-cover grayscale contrast-125"
+                />
+              ) : (
+                <span
+                  className={`text-foreground text-lg font-bold ${mono.className}`}
+                >
+                  {(user?.name || "U")[0].toUpperCase()}
+                </span>
+              )}
+            </div>
+          </Link>
         </div>
       </header>
 
-      <div className="pt-14">
+      <div className="flex flex-1 overflow-hidden relative">
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
         <aside
-          className={`fixed inset-y-14 left-0 z-30 w-72 bg-white border-r transition-transform duration-200 ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          className={`fixed lg:static inset-y-0 left-0 z-40 w-72 bg-background border-r-4 border-foreground transition-transform duration-300 ease-in-out flex flex-col ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
         >
-          <nav className="py-4 h-full flex flex-col">
-            <div className="px-4 pb-2">
-              <div className="flex items-center justify-between rounded-lg bg-blue-50 text-blue-700 px-4 py-3">
-                <span className="font-medium">Menu</span>
-              </div>
-            </div>
-            <div className="px-2 space-y-1">
-              <Link href="/admin/dashboard" className={`flex items-center px-4 py-2.5 rounded-lg ${pathname === '/admin/dashboard' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-100'}`}>
-                <LayoutDashboard className="w-5 h-5 mr-3" />
-                <span>Dashboard</span>
-              </Link>
-              <Link href="/admin/websites" className={`flex items-center px-4 py-2.5 rounded-lg ${pathname.startsWith('/admin/websites') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-100'}`}>
-                <Globe className="w-5 h-5 mr-3" />
-                <span>Websites</span>
-              </Link>
-              <Link href="/admin/chats" className={`flex items-center px-4 py-2.5 rounded-lg ${pathname.startsWith('/admin/chats') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-100'}`}>
-                <MessageSquare className="w-5 h-5 mr-3" />
-                <span>Chats</span>
-                <div className="ml-auto">
-                  <UnreadBadge />
-                </div>
-              </Link>
-              <Link href="/admin/analytics" className={`flex items-center px-4 py-2.5 rounded-lg ${pathname === '/admin/analytics' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-100'}`}>
-                <BarChart className="w-5 h-5 mr-3" />
-                <span>Analytics</span>
-              </Link>
-              {user?.role === 'super_admin' && (
-                <Link href="/admin/settings" className={`flex items-center px-4 py-2.5 rounded-lg ${pathname === '/admin/settings' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-100'}`}>
-                  <Settings className="w-5 h-5 mr-3" />
-                  <span>Settings</span>
-                </Link>
-              )}
-              {user?.role === 'super_admin' && (
-                <Link href="/admin/admins" className={`flex items-center px-4 py-2.5 rounded-lg ${pathname.startsWith('/admin/admins') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-100'}`}>
-                  <Users className="w-5 h-5 mr-3" />
-                  <span>Admins</span>
-                </Link>
-              )}
-              <Link href="/admin/profile" className={`flex items-center px-4 py-2.5 rounded-lg ${pathname === '/admin/profile' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-100'}`}>
-                <User className="w-5 h-5 mr-3" />
-                <span>Profile</span>
-              </Link>
-            </div>
-            <div className="mt-auto px-2 pb-4">
-              <button onClick={handleLogout} className="w-full flex items-center px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100">
-                <LogOut className="w-5 h-5 mr-3" />
-                <span>Logout</span>
-              </button>
-            </div>
-          </nav>
-        </aside>
-        <main className="lg:pl-72">
-          <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-8">
-            {children}
+          <div className="p-4 border-b-2 border-foreground flex items-center justify-between bg-foreground text-background">
+            <span
+              className={`text-xs font-bold uppercase tracking-widest ${mono.className}`}
+            >
+              Navigation
+            </span>
+            <Terminal className="w-4 h-4" />
           </div>
+
+          <nav className="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-2">
+            {[
+              {
+                href: "/admin/dashboard",
+                icon: LayoutDashboard,
+                label: "Dashboard",
+              },
+              { href: "/admin/websites", icon: Globe, label: "Websites" },
+              {
+                href: "/admin/chats",
+                icon: MessageSquare,
+                label: "Chats",
+                badge: (
+                  <div className="ml-auto">
+                    <UnreadBadge />
+                  </div>
+                ),
+              },
+              { href: "/admin/analytics", icon: BarChart, label: "Analytics" },
+              ...(user?.role === "super_admin"
+                ? [
+                    {
+                      href: "/admin/settings",
+                      icon: Settings,
+                      label: "Settings",
+                    },
+                    { href: "/admin/admins", icon: Users, label: "Admins" },
+                  ]
+                : []),
+              { href: "/admin/profile", icon: User, label: "Profile" },
+            ].map((item, i) => {
+              const isActive =
+                item.href === "/admin/dashboard"
+                  ? pathname === item.href
+                  : pathname.startsWith(item.href);
+
+              return (
+                <Link
+                  key={i}
+                  href={item.href}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center px-4 py-3 border-2 border-foreground font-bold uppercase tracking-tight text-sm transition-all group ${
+                    isActive
+                      ? "bg-foreground text-background shadow-[4px_4px_0_0_currentColor] translate-y-[-2px]"
+                      : "bg-background hover:bg-foreground hover:text-background hover:-translate-y-1 hover:shadow-[4px_4px_0_0_currentColor]"
+                  }`}
+                >
+                  <item.icon className="w-5 h-5 mr-4 shrink-0" />
+                  <span>{item.label}</span>
+                  {item.badge}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="p-4 border-t-2 border-foreground bg-background">
+            <button
+              onClick={handleLogout}
+              className={`w-full flex items-center justify-center px-4 py-3 border-2 border-red-500 bg-red-50 text-red-600 font-bold uppercase tracking-widest text-sm hover:bg-red-500 hover:text-white transition-colors group ${mono.className} shadow-[4px_4px_0_0_currentColor] hover:-translate-y-1`}
+            >
+              <LogOut className="w-4 h-4 mr-3 shrink-0" />
+              <span>Terminate Session</span>
+            </button>
+          </div>
+        </aside>
+        <main className="flex-1 overflow-y-auto w-full relative">
+          <div className="w-full">{children}</div>
         </main>
       </div>
     </div>

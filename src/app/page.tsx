@@ -21,7 +21,6 @@ export default function LandingPage() {
     <div
       className={`min-h-screen bg-background text-foreground overflow-x-hidden ${display.className} selection:bg-foreground selection:text-background`}
     >
-      {/* Structural Lines Background */}
       <div className="fixed inset-0 pointer-events-none z-0 flex justify-between px-6 md:px-12 max-w-[1600px] mx-auto opacity-[0.03] dark:opacity-[0.05]">
         <div className="w-px h-full bg-foreground"></div>
         <div className="w-px h-full bg-foreground"></div>
@@ -29,7 +28,6 @@ export default function LandingPage() {
         <div className="w-px h-full bg-foreground hidden lg:block"></div>
       </div>
 
-      {/* Navigation */}
       <nav className="relative z-50 border-b-2 border-foreground bg-background">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -66,7 +64,6 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <main className="relative z-10 max-w-[1600px] mx-auto">
         <section className="grid lg:grid-cols-12 min-h-[85vh] border-b-2 border-foreground">
           <div className="lg:col-span-7 flex flex-col justify-center px-6 md:px-12 py-20 lg:py-0 lg:border-r-2 border-foreground">
@@ -119,7 +116,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Virtual Terminal Graphic */}
           <div className="lg:col-span-5 bg-foreground/5 flex items-center justify-center p-6 md:p-12">
             <div className="w-full border-2 border-foreground shadow-[16px_16px_0_0_currentColor] bg-background relative transition-transform hover:-translate-y-2 hover:-translate-x-2 hover:shadow-[24px_24px_0_0_currentColor] duration-300">
               <div className="border-b-2 border-foreground p-4 flex justify-between items-center bg-foreground text-background">
@@ -177,7 +173,7 @@ export default function LandingPage() {
                   ,<br />
                   &nbsp;&nbsp;theme:{" "}
                   <span className="text-orange-600 dark:text-orange-400">
-                    "terminal"
+                    "system"
                   </span>
                   <br />
                   {"}"});
@@ -194,7 +190,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Technical Specs */}
         <section
           className={`grid grid-cols-2 md:grid-cols-4 border-b-2 border-foreground ${mono.className} divide-x-2 divide-y-2 md:divide-y-0 divide-foreground`}
         >
@@ -228,8 +223,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Features Block */}
-        <section className="p-6 md:p-12 lg:p-24 border-b-2 border-foreground bg-[linear-gradient(45deg,transparent_25%,rgba(150,150,150,0.05)_25%,rgba(150,150,150,0.05)_50%,transparent_50%,transparent_75%,rgba(150,150,150,0.05)_75%,rgba(150,150,150,0.05)_100%)] bg-[size:20px_20px]">
+        <section className="p-6 md:p-12 lg:p-24 border-b-2 border-foreground bg-[linear-gradient(45deg,transparent_25%,rgba(150,150,150,0.05)_25%,rgba(150,150,150,0.05)_50%,transparent_50%,transparent_75%,rgba(150,150,150,0.05)_75%,rgba(150,150,150,0.05)_100%)] bg-size-[20px_20px]">
           <h2 className="text-5xl md:text-7xl font-extrabold uppercase tracking-tighter mb-16 max-w-4xl">
             Everything you need.
             <br />
@@ -278,7 +272,6 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="max-w-[1600px] mx-auto px-6 md:px-12 py-12 flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 border-2 border-foreground bg-foreground text-background flex items-center justify-center">
@@ -290,7 +283,7 @@ export default function LandingPage() {
           <span
             className={`text-sm opacity-50 ml-4 hidden md:inline-block ${mono.className}`}
           >
-            © {new Date().getFullYear()} STATUS: ONLINE
+            © 2026 STATUS: ONLINE
           </span>
         </div>
 
