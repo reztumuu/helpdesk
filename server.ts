@@ -42,6 +42,14 @@ app.prepare().then(() => {
               } else if (websiteId) {
                 io.to(`website-${websiteId}`).emit('chat-started', { websiteId, chatId });
               }
+            } else if (event === 'chat-joined') {
+              const { websiteId, apiKey, chatId } = data;
+              if (apiKey) {
+                io.to(`website-${apiKey}`).emit('chat-joined', data);
+              }
+              if (chatId) {
+                io.to(`chat-${chatId}`).emit('chat-joined', data);
+              }
             }
             res.statusCode = 200;
             res.end(JSON.stringify({ ok: true }));
