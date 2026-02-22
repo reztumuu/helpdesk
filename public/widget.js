@@ -13,8 +13,8 @@
     container.style.bottom = '50px';
     container.style.right = '20px';
     container.style.zIndex = '999999';
-    container.style.width = '60px';
-    container.style.height = '60px';
+    container.style.width = '80px';
+    container.style.height = '80px';
     container.style.transition = 'all 0.3s ease';
     document.body.appendChild(container);
 
@@ -23,7 +23,7 @@
     iframe.style.width = '100%';
     iframe.style.height = '100%';
     iframe.style.border = 'none';
-    iframe.style.borderRadius = '30px';
+    iframe.style.borderRadius = '50%';
     iframe.style.padding = '4px';
     iframe.style.boxSizing = 'border-box';
     iframe.allow = "camera; microphone; autoplay; encrypted-media; fullscreen";
@@ -46,7 +46,7 @@
         const { width, height, isOpen } = event.data;
         container.style.width = width;
         container.style.height = height;
-        iframe.style.borderRadius = isOpen ? '12px' : '30px';
+        iframe.style.borderRadius = isOpen ? '12px' : '50%';
         container.style.boxShadow = isOpen ? '0 4px 24px rgba(0,0,0,0.2)' : 'none';
       }
       if (event.data && event.data.type === 'helpdesk-config') {
@@ -72,11 +72,11 @@
     btn.style.display = 'inline-flex';
     btn.style.alignItems = 'center';
     btn.style.justifyContent = 'center';
-    btn.style.width = '60px';
-    btn.style.height = '60px';
+    btn.style.width = '80px';
+    btn.style.height = '80px';
     btn.style.border = 'none';
     btn.style.cursor = 'pointer';
-    btn.style.borderRadius = '30px';
+    btn.style.borderRadius = '50%';
     btn.style.backgroundColor = '#f59e0b';
     btn.style.color = '#fff';
     btn.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';

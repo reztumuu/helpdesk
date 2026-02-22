@@ -20,6 +20,8 @@ export default function WidgetPage() {
   const typingStopTimerRef = useRef<any>(null);
   const typingDotsTimerRef = useRef<any>(null);
   const [assigneeName, setAssigneeName] = useState<string>('');
+  const [iconFailed, setIconFailed] = useState(false);
+  const [iconSrc, setIconSrc] = useState<string | null>(null);
 
   useEffect(() => {
     // Get apiKey from URL
@@ -38,6 +40,18 @@ export default function WidgetPage() {
             const data = await res.json();
             setConfig(data);
             window.parent.postMessage({ type: 'helpdesk-config', position: data.position, offsetX: data.offsetX, offsetY: data.offsetY }, '*');
+            setIconFailed(false);
+            try {
+              const u = data.iconUrl as string;
+              if (u && typeof u === 'string' && u.length > 0) {
+                const abs = /^https?:\/\//i.test(u) ? u : `${window.location.origin}${u}`;
+                setIconSrc(abs);
+              } else {
+                setIconSrc(null);
+              }
+            } catch {
+              setIconSrc(null);
+            }
             
             // Connect to socket
             const newSocket = io('http://localhost:3000');
@@ -143,8 +157,8 @@ export default function WidgetPage() {
   };
 
   useEffect(() => {
-      const width = isOpen ? '380px' : '64px';
-      const height = isOpen ? '520px' : '64px';
+      const width = isOpen ? '380px' : '80px';
+      const height = isOpen ? '520px' : '80px';
       
       window.parent.postMessage({
           type: 'helpdesk-resize',
@@ -381,14 +395,14 @@ export default function WidgetPage() {
         <div className="flex justify-end items-end h-full">
           <button
             onClick={toggleOpen}
-            className="w-[60px] h-[60px] rounded-full text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform relative"
+            className="w-[80px] h-[80px] rounded-full text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform relative"
             style={{ backgroundColor: config.primary_color || '#f59e0b' }}
             aria-label="Open chat"
           >
-            {config.iconUrl ? (
-              <img src={config.iconUrl} alt="Widget Icon" className="w-7 h-7 object-cover rounded" />
+            {iconSrc && !iconFailed ? (
+              <img src={iconSrc} alt="" className="w-9 h-9 object-cover rounded" onError={() => setIconFailed(true)} />
             ) : (
-              <MessagesSquare size={28} className="text-white" />
+              <MessagesSquare size={32} className="text-white" />
             )}
             {unread > 0 && (
               <span className="absolute top-2 right-2 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
