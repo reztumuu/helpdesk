@@ -4,7 +4,6 @@ import RealtimeAlarm from "@/components/RealtimeAlarm";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { Users, MessageSquare, Activity, Clock, Terminal } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
 import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 
 const display = Bricolage_Grotesque({
@@ -92,7 +91,6 @@ export default function DashboardPage() {
       <RealtimeAlarm />
 
       <div className="max-w-[1600px] mx-auto relative z-10">
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-4 border-foreground pb-8 mb-12 gap-6">
           <div className="flex flex-col gap-2">
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter uppercase leading-none">
@@ -107,7 +105,6 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-4 border-2 border-foreground p-2 bg-background shadow-[4px_4px_0_0_currentColor]">
-            <ThemeToggle />
             <div
               className={`text-xs font-bold uppercase tracking-widest px-2 ${mono.className} flex items-center gap-2`}
             >
@@ -117,7 +114,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <div className="border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
             <div className="flex items-center justify-between border-b-2 border-foreground pb-4 mb-4">
@@ -143,7 +139,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="border-4 border-foreground bg-foreground text-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
+          <div className="border-4 border-background bg-foreground text-background p-6 hover:-translate-y-1 transition-all group">
             <div className="flex items-center justify-between border-b-2 border-background pb-4 mb-4">
               <h3
                 className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}
@@ -214,9 +210,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Lower Section Grid */}
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Chart Placeholder */}
           <div className="lg:col-span-2 border-4 border-foreground bg-background shadow-[12px_12px_0_0_currentColor] flex flex-col h-[500px]">
             <div className="border-b-4 border-foreground bg-foreground text-background p-4 flex justify-between items-center">
               <div
@@ -234,7 +228,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Activity Feed */}
           <div className="border-4 border-foreground bg-background shadow-[12px_12px_0_0_currentColor] flex flex-col h-[500px]">
             <div className="border-b-4 border-foreground bg-background p-4 flex justify-between items-center">
               <div

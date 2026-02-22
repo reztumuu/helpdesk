@@ -81,13 +81,12 @@ export default function WebsitesPage() {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className={`flex mr-6 items-center gap-2 border-4 border-foreground bg-blue-500 text-white px-6 py-3 font-bold uppercase tracking-widest shadow-[6px_6px_0_0_currentColor] hover:-translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0_0_currentColor] transition-all focus:outline-none focus:ring-4 focus:ring-foreground/20 active:translate-y-1 active:translate-x-1 active:shadow-none ${mono.className}`}
+            className={`flex mr-6 items-center gap-2 border-4 border-foreground bg-blue-500 text-white px-6 py-3 font-bold uppercase tracking-widest shadow-[6px_6px_0_0_var(--foreground)] hover:-translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0_0_var(--foreground)] transition-all focus:outline-none focus:ring-4 focus:ring-foreground/20 active:translate-y-1 active:translate-x-1 active:shadow-none ${mono.className}`}
           >
             <Plus className="w-5 h-5" /> New Domain
           </button>
         </div>
 
-        {/* Websites Grid */}
         {websites.length === 0 ? (
           <div className="border-4 border-dashed border-foreground p-12 flex flex-col items-center justify-center text-center bg-foreground/5">
             <Globe className="w-16 h-16 mb-4 opacity-50" />
@@ -105,7 +104,6 @@ export default function WebsitesPage() {
                 key={website.id}
                 className="border-4 border-foreground bg-background shadow-[8px_8px_0_0_currentColor] flex flex-col group hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all relative overflow-hidden"
               >
-                {/* Accent Bar */}
                 <div
                   className={`absolute top-0 left-0 bottom-0 w-2 ${website.is_active ? "bg-green-500" : "bg-red-500"}`}
                 />

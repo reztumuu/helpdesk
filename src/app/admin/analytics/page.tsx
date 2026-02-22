@@ -118,8 +118,8 @@ export default function AnalyticsPage() {
 
         <div>
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
+          <div className="flex flex-col md:flex-row flex-wrap justify-center gap-6 mb-12">
+            <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
               <div className="flex items-center justify-between border-b-2 border-foreground pb-4 mb-4">
                 <h3
                   className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}
@@ -143,7 +143,7 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            <div className="border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
+            <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
               <div className="flex items-center justify-between border-b-2 border-foreground pb-4 mb-4">
                 <h3
                   className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}
@@ -167,7 +167,7 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            <div className="border-4 border-foreground bg-foreground text-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
+            <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] border-4 border-background bg-foreground text-background p-6 hover:-translate-y-1 transition-all group">
               <div className="flex items-center justify-between border-b-2 border-background pb-4 mb-4">
                 <h3
                   className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}
