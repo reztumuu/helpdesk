@@ -853,7 +853,7 @@ export default function ChatsPage() {
                       <span
                         className={`font-bold uppercase tracking-widest text-sm ${mono.className}`}
                       >
-                        SYS.RECV{typingDots}
+                        Typing{typingDots}
                       </span>
                     </div>
                   </div>
