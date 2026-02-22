@@ -37,7 +37,8 @@ export async function GET(req: Request) {
         orderBy: { created_at: 'desc' },
         take: 1
       },
-      website: true
+      website: true,
+      assignee: true
     },
     orderBy: { updated_at: 'desc' }
   });

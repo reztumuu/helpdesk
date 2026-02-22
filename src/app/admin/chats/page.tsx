@@ -33,6 +33,7 @@ export default function ChatsPage() {
   const [typingDots, setTypingDots] = useState(".");
   const typingStopTimerRef = useRef<any>(null);
   const typingDotsTimerRef = useRef<any>(null);
+  const [me, setMe] = useState<any>(null);
 
   useEffect(() => {
     const newSocket = io("http://localhost:3000");
@@ -72,6 +73,21 @@ export default function ChatsPage() {
     return () => {
       newSocket.disconnect();
     };
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("/api/profile", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setMe(data);
+        }
+      } catch {}
+    })();
   }, []);
 
   useEffect(() => {
@@ -136,6 +152,34 @@ export default function ChatsPage() {
       fetchVisitorCount();
     });
 
+    socket.on("chat-joined", (data: any) => {
+      setChats((prev) =>
+        prev.map((c) =>
+          c.id === data.chatId
+            ? {
+                ...c,
+                assigned_to: data.assigneeId,
+                assignee: { id: data.assigneeId, name: data.assigneeName },
+                status: "ongoing",
+                updated_at: new Date().toISOString(),
+              }
+            : c,
+        ),
+      );
+      if (activeChat && data.chatId === activeChat.id) {
+        setActiveChat((prev: any) =>
+          prev
+            ? {
+                ...prev,
+                assigned_to: data.assigneeId,
+                assignee: { id: data.assigneeId, name: data.assigneeName },
+                status: "ongoing",
+              }
+            : prev,
+        );
+      }
+    });
+
     socket.on("user-typing", (data: any) => {
       if (activeChat && data.chatId === activeChat.id) {
         setIsTypingVisitor(true);
@@ -158,6 +202,7 @@ export default function ChatsPage() {
       socket.off("new-message");
       socket.off("visitor-online");
       socket.off("chat-started");
+      socket.off("chat-joined");
       socket.off("user-typing");
       socket.off("user-stopped-typing");
     };
@@ -249,6 +294,31 @@ export default function ChatsPage() {
         socket.emit("typing-stop", { chatId: activeChat.id });
       }
     }
+  };
+
+  const handleJoinChat = async () => {
+    if (!activeChat) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/chats/join", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ chatId: activeChat.id }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setActiveChat(updated);
+        setChats((prev) =>
+          prev.map((c) =>
+            c.id === updated.id ? { ...c, ...updated, messages: c.messages } : c,
+          ),
+        );
+        if (socket) socket.emit("join-chat", updated.id);
+      }
+    } catch {}
   };
 
   const scrollToBottom = () => {
@@ -389,7 +459,7 @@ export default function ChatsPage() {
                     <p
                       className={`text-sm truncate font-medium ${mono.className} ${activeChat?.id === chat.id ? "opacity-90" : "opacity-70"}`}
                     >
-                      {chat.messages[0]?.content || "---"}
+                      {chat.messages?.[0]?.content || "---"}
                     </p>
 
                     {unread[chat.id] && unread[chat.id] > 0 && (
@@ -421,7 +491,9 @@ export default function ChatsPage() {
                       className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 text-green-600 dark:text-green-400 ${mono.className}`}
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />{" "}
-                      Established
+                      {activeChat.assignee?.name
+                        ? `Assigned: ${activeChat.assignee.name}`
+                        : "Waiting"}
                     </span>
                   </div>
                 </div>
@@ -441,7 +513,7 @@ export default function ChatsPage() {
                       className={`text-[10px] font-bold uppercase tracking-widest opacity-50 mb-1 ${mono.className}`}
                     >
                       {msg.sender_type === "admin"
-                        ? "Agent"
+                        ? activeChat.assignee?.name || "Agent"
                         : `V_${activeChat.visitor_id.slice(0, 5)}`}
                     </div>
                     <div
@@ -485,25 +557,42 @@ export default function ChatsPage() {
                 )}
                 <div ref={messagesEndRef} />
               </div>
-              <form
-                onSubmit={handleSendMessage}
-                className="p-4 border-t-4 border-foreground bg-background shrink-0 flex gap-4"
-              >
-                <input
-                  value={newMessage}
-                  onChange={handleInputChange}
-                  placeholder="Transmit message..."
-                  className={`flex-1 border-4 border-foreground bg-background p-4 font-bold md:text-lg shadow-[4px_4px_0_0_currentColor] focus:outline-none focus:translate-y-1 focus:translate-x-1 focus:shadow-none transition-all placeholder:opacity-30 ${mono.className}`}
-                />
-                <button
-                  type="submit"
-                  disabled={!newMessage.trim()}
-                  className={`w-16 md:w-auto shrink-0 flex items-center justify-center gap-2 border-4 border-foreground bg-foreground text-background px-0 md:px-8 font-bold uppercase tracking-widest shadow-[4px_4px_0_0_currentColor] hover:-translate-y-1 hover:translate-x-1 hover:shadow-[6px_6px_0_0_currentColor] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:translate-x-0 disabled:hover:shadow-[4px_4px_0_0_currentColor] focus:outline-none focus:translate-y-1 focus:translate-x-1 focus:shadow-none ${mono.className}`}
+              {activeChat?.assigned_to && me?.id === activeChat.assigned_to ? (
+                <form
+                  onSubmit={handleSendMessage}
+                  className="p-4 border-t-4 border-foreground bg-background shrink-0 flex gap-4"
                 >
-                  <Send className="w-5 h-5" />
-                  <span className="hidden md:inline">Transmit</span>
-                </button>
-              </form>
+                  <input
+                    value={newMessage}
+                    onChange={handleInputChange}
+                    placeholder="Transmit message..."
+                    className={`flex-1 border-4 border-foreground bg-background p-4 font-bold md:text-lg shadow-[4px_4px_0_0_currentColor] focus:outline-none focus:translate-y-1 focus:translate-x-1 focus:shadow-none transition-all placeholder:opacity-30 ${mono.className}`}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!newMessage.trim()}
+                    className={`w-16 md:w-auto shrink-0 flex items-center justify-center gap-2 border-4 border-foreground bg-foreground text-background px-0 md:px-8 font-bold uppercase tracking-widest shadow-[4px_4px_0_0_currentColor] hover:-translate-y-1 hover:translate-x-1 hover:shadow-[6px_6px_0_0_currentColor] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:translate-x-0 disabled:hover:shadow-[4px_4px_0_0_currentColor] focus:outline-none focus:translate-y-1 focus:translate-x-1 focus:shadow-none ${mono.className}`}
+                  >
+                    <Send className="w-5 h-5" />
+                    <span className="hidden md:inline">Transmit</span>
+                  </button>
+                </form>
+              ) : (
+                <div className="p-4 border-t-4 border-foreground bg-background shrink-0 flex items-center justify-between gap-4">
+                  <p
+                    className={`text-sm font-bold uppercase tracking-widest opacity-70 ${mono.className}`}
+                  >
+                    Join untuk menangani chat ini. Input akan aktif setelah join.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleJoinChat}
+                    className={`shrink-0 border-4 border-foreground bg-foreground text-background px-6 font-bold uppercase tracking-widest shadow-[4px_4px_0_0_currentColor] hover:-translate-y-1 hover:translate-x-1 hover:shadow-[6px_6px_0_0_currentColor] transition-all focus:outline-none focus:translate-y-1 focus:translate-x-1 focus:shadow-none ${mono.className}`}
+                  >
+                    Join
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-[linear-gradient(45deg,transparent_25%,rgba(150,150,150,0.05)_25%,rgba(150,150,150,0.05)_50%,transparent_50%,transparent_75%,rgba(150,150,150,0.05)_75%,rgba(150,150,150,0.05)_100%)] bg-size-[20px_20px]">
