@@ -10,6 +10,8 @@ import {
   Trash2,
   Globe,
   PaintBucket,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 
@@ -364,14 +366,30 @@ export default function SettingsPage() {
                     >
                       Offset X [px]
                     </label>
-                    <input
-                      value={offsetX}
-                      onChange={(e) =>
-                        setOffsetX(parseInt(e.target.value || "0", 10))
-                      }
-                      type="number"
-                      className={`w-full border-4 border-foreground bg-background p-4 font-bold text-xl text-center shadow-[4px_4px_0_0_currentColor] focus:outline-none focus:translate-y-1 focus:translate-x-1 focus:shadow-none transition-all ${mono.className}`}
-                    />
+                    <div className="flex items-center gap-2 border-4 border-foreground bg-background p-2 shadow-[4px_4px_0_0_currentColor]">
+                      <button
+                        type="button"
+                        onClick={() => setOffsetX(offsetX - 1)}
+                        className="w-10 h-10 shrink-0 border-2 border-foreground flex items-center justify-center font-bold shadow-[3px_3px_0_0_currentColor] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_currentColor] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <input
+                        value={offsetX}
+                        onChange={(e) =>
+                          setOffsetX(parseInt(e.target.value || "0", 10))
+                        }
+                        type="number"
+                        className={`w-full bg-transparent py-2 font-bold text-xl text-center focus:outline-none ${mono.className}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setOffsetX(offsetX + 1)}
+                        className="w-10 h-10 shrink-0 border-2 border-foreground flex items-center justify-center font-bold shadow-[3px_3px_0_0_currentColor] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_currentColor] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <label
@@ -379,14 +397,30 @@ export default function SettingsPage() {
                     >
                       Offset Y [px]
                     </label>
-                    <input
-                      value={offsetY}
-                      onChange={(e) =>
-                        setOffsetY(parseInt(e.target.value || "0", 10))
-                      }
-                      type="number"
-                      className={`w-full border-4 border-foreground bg-background p-4 font-bold text-xl text-center shadow-[4px_4px_0_0_currentColor] focus:outline-none focus:translate-y-1 focus:translate-x-1 focus:shadow-none transition-all ${mono.className}`}
-                    />
+                    <div className="flex items-center gap-2 border-4 border-foreground bg-background p-2 shadow-[4px_4px_0_0_currentColor]">
+                      <button
+                        type="button"
+                        onClick={() => setOffsetY(offsetY - 1)}
+                        className="w-10 h-10 shrink-0 border-2 border-foreground flex items-center justify-center font-bold shadow-[3px_3px_0_0_currentColor] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_currentColor] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <input
+                        value={offsetY}
+                        onChange={(e) =>
+                          setOffsetY(parseInt(e.target.value || "0", 10))
+                        }
+                        type="number"
+                        className={`w-full bg-transparent py-2 font-bold text-xl text-center focus:outline-none ${mono.className}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setOffsetY(offsetY + 1)}
+                        className="w-10 h-10 shrink-0 border-2 border-foreground flex items-center justify-center font-bold shadow-[3px_3px_0_0_currentColor] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_currentColor] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

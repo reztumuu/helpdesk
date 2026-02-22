@@ -81,7 +81,6 @@ export default function AnalyticsPage() {
     <div
       className={`space-y-8 bg-background min-h-[calc(100vh-64px)] p-6 md:p-12 text-foreground relative ${display.className} selection:bg-foreground selection:text-background`}
     >
-      {/* Background Structural Lines */}
       <div className="absolute inset-0 pointer-events-none z-0 flex flex-col justify-between py-12 opacity-[0.03] dark:opacity-[0.05]">
         <div className="h-px w-full bg-foreground"></div>
         <div className="h-px w-full bg-foreground"></div>
@@ -90,7 +89,6 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="max-w-[1600px] mx-auto relative z-10">
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-4 border-foreground pb-8 mb-12 gap-6 relative z-10">
           <div className="flex flex-col gap-2">
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter uppercase leading-none">
@@ -117,7 +115,6 @@ export default function AnalyticsPage() {
         </div>
 
         <div>
-          {/* Key Metrics */}
           <div className="flex flex-col md:flex-row flex-wrap justify-center gap-6 mb-12">
             <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] border-4 border-foreground bg-background p-6 shadow-[8px_8px_0_0_currentColor] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_currentColor] transition-all group">
               <div className="flex items-center justify-between border-b-2 border-foreground pb-4 mb-4">
@@ -167,7 +164,7 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] border-4 border-background bg-foreground text-background p-6 shadow-[8px_8px_0_0_var(--foreground)] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_var(--foreground)] transition-all group">
+            <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] border-4 border-foreground bg-foreground text-background p-6 shadow-[8px_8px_0_0_var(--foreground)] hover:-translate-y-1 hover:shadow-[12px_12px_0_0_var(--foreground)] transition-all group">
               <div className="flex items-center justify-between border-b-2 border-background pb-4 mb-4">
                 <h3
                   className={`text-sm font-bold uppercase tracking-widest ${mono.className}`}
@@ -191,7 +188,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Charts Area */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="border-4 border-foreground bg-background shadow-[12px_12px_0_0_currentColor] flex flex-col">
               <div className="border-b-4 border-foreground bg-foreground text-background p-4 flex justify-between items-center">
