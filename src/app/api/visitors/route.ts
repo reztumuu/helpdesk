@@ -14,6 +14,7 @@ export async function GET(req: Request) {
   const countOnly = searchParams.get('count') === 'true';
   const onlineOnly = searchParams.get('online') === 'true';
   const thresholdSec = Number(searchParams.get('threshold') || '30');
+  const limitStr = searchParams.get('limit');
 
   const where: any = {};
 
@@ -38,9 +39,11 @@ export async function GET(req: Request) {
     const cutoff = new Date(Date.now() - thresholdSec * 1000);
     (whereList as any).last_seen = { gte: cutoff };
   }
+  const limit = limitStr ? Number(limitStr) : 0;
   const visitors = await prisma.visitor.findMany({
     where: whereList,
     orderBy: { last_seen: 'desc' },
+    take: limit > 0 ? limit : undefined,
   });
 
   return NextResponse.json(visitors);

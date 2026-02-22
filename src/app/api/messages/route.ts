@@ -75,6 +75,8 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const chatId = searchParams.get('chatId');
+  const limitStr = searchParams.get('limit');
+  const orderParam = searchParams.get('order');
 
   if (!chatId) {
     return NextResponse.json({ error: 'chatId is required' }, { status: 400 });
@@ -91,9 +93,12 @@ export async function GET(req: Request) {
 
   // Access allowed for admin/agent created by super admin
 
+  const limit = limitStr ? Number(limitStr) : 0;
+  const order = orderParam === 'desc' ? 'desc' : 'asc';
   const msgs = await prisma.message.findMany({
     where: { chat_id: chatId },
-    orderBy: { created_at: 'asc' },
+    orderBy: { created_at: order },
+    take: limit > 0 ? limit : undefined,
   });
 
   return NextResponse.json(msgs);

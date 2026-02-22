@@ -31,14 +31,20 @@ export async function GET(req: Request) {
 
   const chats = await prisma.chat.findMany({
     where,
-    include: {
-      visitor: true,
+    select: {
+      id: true,
+      visitor_id: true,
+      assigned_to: true,
+      status: true,
+      updated_at: true,
+      assignee: {
+        select: { id: true, name: true }
+      },
       messages: {
+        select: { id: true, content: true, sender_type: true, created_at: true },
         orderBy: { created_at: 'desc' },
         take: 1
-      },
-      website: true,
-      assignee: true
+      }
     },
     orderBy: { updated_at: 'desc' }
   });

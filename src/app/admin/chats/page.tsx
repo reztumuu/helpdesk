@@ -134,8 +134,6 @@ export default function ChatsPage() {
         }
         return updated;
       });
-      fetchChats();
-      fetchVisitorCount();
       if (!activeChat || data.chatId !== activeChat.id) {
         setUnread((prev) => ({
           ...prev,
@@ -145,7 +143,6 @@ export default function ChatsPage() {
     });
 
     socket.on("visitor-online", () => {
-      fetchChats();
       fetchVisitorCount();
       fetchVisitorsOnline();
     });
@@ -254,7 +251,7 @@ export default function ChatsPage() {
   
   const fetchVisitorsOnline = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch("/api/visitors?online=true", {
+    const res = await fetch("/api/visitors?online=true&limit=100", {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
@@ -389,12 +386,12 @@ export default function ChatsPage() {
 
   const fetchChatMessages = async (chatId: string) => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`/api/messages?chatId=${chatId}`, {
+    const res = await fetch(`/api/messages?chatId=${chatId}&order=desc&limit=200`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
       const data = await res.json();
-      setMessages(data);
+      setMessages(Array.isArray(data) ? data.reverse() : []);
     } else {
       setMessages([]);
     }

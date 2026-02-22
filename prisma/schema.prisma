@@ -24,6 +24,8 @@ model User {
   assigned_chats Chat[]   @relation("AssignedChats")
   activity_logs ActivityLog[]
 
+  @@index([role], map: "idx_users_role")
+  @@index([is_active], map: "idx_users_active")
   @@map("users")
 }
 
@@ -48,6 +50,7 @@ model Website {
   chats       Chat[]
   settings    WidgetSettings?
 
+  @@index([user_id], map: "idx_websites_user")
   @@map("websites")
 }
 
@@ -64,6 +67,7 @@ model Visitor {
   website     Website   @relation(fields: [website_id], references: [id], onDelete: Cascade)
   chats       Chat[]
 
+  @@index([website_id, last_seen], map: "idx_visitors_website_last_seen")
   @@map("visitors")
 }
 
@@ -84,6 +88,8 @@ model Chat {
   assignee    User?     @relation("AssignedChats", fields: [assigned_to], references: [id])
   messages    Message[]
 
+  @@index([website_id, updated_at], map: "idx_chats_website_updated")
+  @@index([visitor_id, status], map: "idx_chats_visitor_status")
   @@map("chats")
 }
 
@@ -106,6 +112,7 @@ model Message {
 
   chat        Chat      @relation(fields: [chat_id], references: [id], onDelete: Cascade)
 
+  @@index([chat_id, created_at], map: "idx_messages_chat_created")
   @@map("messages")
 }
 
@@ -161,5 +168,6 @@ model ActivityLog {
 
   user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@index([user_id, created_at], map: "idx_activity_user_created")
   @@map("activity_logs")
 }
