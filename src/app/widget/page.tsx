@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { MessageCircle, X, Send, MessagesSquare } from 'lucide-react';
+import { MessageCircle, X, Send, MessagesSquare, Star } from 'lucide-react';
 
 export default function WidgetPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +26,11 @@ export default function WidgetPage() {
   const heartbeatRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playedMsgIdsRef = useRef<Set<string>>(new Set());
+  const [showRating, setShowRating] = useState(false);
+  const [ratingStars, setRatingStars] = useState<number>(0);
+  const [ratingComment, setRatingComment] = useState('');
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
   useEffect(() => {
     // Get apiKey from URL
@@ -164,6 +169,8 @@ export default function WidgetPage() {
             newSocket.on('chat-ended', (data: any) => {
               if (chatIdRef.current && data.chatId === chatIdRef.current) {
                 setAssigneeName('');
+                setShowRating(true);
+                setIsOpen(true);
               }
             });
             
@@ -455,6 +462,71 @@ export default function WidgetPage() {
                   </div>
                 )}
                 <div ref={messagesEndRef} />
+                {showRating && (
+                  <div className="mt-4 bg-white border rounded-lg p-4">
+                    <div className="font-bold mb-2">Terima kasih</div>
+                    <div className="text-sm mb-3">Beri rating layanan kami</div>
+                    <div className="flex items-center gap-2 mb-3">
+                      {[1,2,3,4,5].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setRatingStars(n)}
+                          className="p-1"
+                          aria-label={`Rating ${n}`}
+                        >
+                          <Star
+                            size={24}
+                            className={n <= ratingStars ? 'text-yellow-400' : 'text-gray-300'}
+                            fill={n <= ratingStars ? 'currentColor' : 'none'}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="text"
+                      value={ratingComment}
+                      onChange={(e) => setRatingComment(e.target.value)}
+                      placeholder="Komentar (opsional)"
+                      className="w-full border rounded px-3 py-2 text-sm mb-3 focus:outline-none focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      disabled={ratingSubmitting || ratingStars <= 0}
+                      onClick={async () => {
+                        try {
+                          setRatingSubmitting(true);
+                          const sid = localStorage.getItem(`helpdesk_session_${apiKey}`);
+                          if (!sid || !chatIdRef.current || ratingStars <= 0) {
+                            setRatingSubmitting(false);
+                            return;
+                          }
+                          const res = await fetch('/api/ratings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              chatId: chatIdRef.current,
+                              sessionId: sid,
+                              stars: ratingStars,
+                              comment: ratingComment || undefined
+                            })
+                          });
+                          if (res.ok) {
+                            setRatingSubmitted(true);
+                            setShowRating(false);
+                          }
+                        } finally {
+                          setRatingSubmitting(false);
+                        }
+                      }}
+                      className="px-4 py-2 rounded text-white"
+                      style={{ backgroundColor: (config?.primary_color || '#2563eb') }}
+                    >
+                      {ratingSubmitting ? 'Mengirim...' : 'Kirim Rating'}
+                    </button>
+                    {ratingSubmitted && <div className="text-sm mt-2 text-green-600">Rating tersimpan</div>}
+                  </div>
+                )}
               </>
             )}
           </div>

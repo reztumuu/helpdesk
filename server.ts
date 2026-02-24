@@ -51,14 +51,14 @@ app.prepare().then(() => {
                 io.to(`chat-${chatId}`).emit('chat-joined', data);
               }
             } else if (event === 'chat-ended') {
-              const { websiteId, apiKey, chatId } = data;
+              const { websiteId, apiKey, chatId, chat } = data;
               if (apiKey) {
-                io.to(`website-${apiKey}`).emit('chat-ended', { websiteId, apiKey, chatId });
+                io.to(`website-${apiKey}`).emit('chat-ended', { websiteId, apiKey, chatId, chat });
               } else if (websiteId) {
-                io.to(`website-${websiteId}`).emit('chat-ended', { websiteId, chatId });
+                io.to(`website-${websiteId}`).emit('chat-ended', { websiteId, chatId, chat });
               }
               if (chatId) {
-                io.to(`chat-${chatId}`).emit('chat-ended', { chatId });
+                io.to(`chat-${chatId}`).emit('chat-ended', { chatId, chat });
               }
             }
             res.statusCode = 200;

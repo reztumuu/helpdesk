@@ -155,7 +155,20 @@ export default function ChatsPage() {
         setActiveChat(null);
         setMessages([]);
       }
-      fetchChatsHistory();
+      if (data?.chat) {
+        setHistoryChats((prev) => {
+          const exists = prev.some((c) => c.id === data.chat.id);
+          const next = exists ? prev : [data.chat, ...prev];
+          next.sort(
+            (a, b) =>
+              new Date(b.updated_at).getTime() -
+              new Date(a.updated_at).getTime(),
+          );
+          return next;
+        });
+      } else {
+        fetchChatsHistory();
+      }
       setShowEndCard(false);
       setEndTarget(null);
     });

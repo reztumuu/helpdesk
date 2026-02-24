@@ -28,6 +28,24 @@ export async function POST(req: Request) {
       data: { status: 'closed', ended_at: new Date(), updated_at: new Date() },
       include: { website: true, assignee: true },
     });
+    let lastMsg: any = null;
+    try {
+      lastMsg = await prisma.message.findFirst({
+        where: { chat_id: chatId },
+        orderBy: { created_at: 'desc' },
+        select: { id: true, content: true, sender_type: true, created_at: true },
+      });
+    } catch {}
+    const endedChat = {
+      id: updated.id,
+      visitor_id: (updated as any).visitor_id,
+      assigned_to: updated.assigned_to,
+      status: updated.status,
+      ended_at: updated.ended_at,
+      updated_at: updated.updated_at,
+      assignee: updated.assignee ? { id: updated.assignee.id, name: updated.assignee.name } : null,
+      messages: lastMsg ? [lastMsg] : [],
+    };
     try {
       await prisma.activityLog.create({
         data: {
@@ -49,6 +67,7 @@ export async function POST(req: Request) {
             chatId,
             websiteId: updated.website.id,
             apiKey: (updated.website as any).api_key,
+            chat: endedChat,
           },
         }),
       });

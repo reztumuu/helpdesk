@@ -50,6 +50,7 @@ model Website {
   visitors    Visitor[]
   chats       Chat[]
   settings    WidgetSettings?
+  ratings     ChatRating[]
 
   @@index([user_id], map: "idx_websites_user")
   @@map("websites")
@@ -67,6 +68,7 @@ model Visitor {
 
   website     Website   @relation(fields: [website_id], references: [id], onDelete: Cascade)
   chats       Chat[]
+  ratings     ChatRating[]
 
   @@index([website_id, last_seen], map: "idx_visitors_website_last_seen")
   @@map("visitors")
@@ -88,6 +90,7 @@ model Chat {
   visitor     Visitor   @relation(fields: [visitor_id], references: [id], onDelete: Cascade)
   assignee    User?     @relation("AssignedChats", fields: [assigned_to], references: [id])
   messages    Message[]
+  ratings     ChatRating[]
 
   @@index([website_id, updated_at], map: "idx_chats_website_updated")
   @@index([visitor_id, status], map: "idx_chats_visitor_status")
@@ -127,6 +130,24 @@ enum MessageType {
   text
   file
   image
+}
+
+model ChatRating {
+  id          String   @id @default(uuid())
+  chat_id     String   @unique
+  website_id  String
+  visitor_id  String?
+  stars       Int
+  comment     String?  @db.Text
+  created_at  DateTime @default(now())
+
+  chat        Chat     @relation(fields: [chat_id], references: [id], onDelete: Cascade)
+  website     Website  @relation(fields: [website_id], references: [id], onDelete: Cascade)
+  visitor     Visitor? @relation(fields: [visitor_id], references: [id])
+
+  @@index([website_id], map: "idx_ratings_website")
+  @@index([visitor_id], map: "idx_ratings_visitor")
+  @@map("chat_ratings")
 }
 
 model WidgetSettings {
